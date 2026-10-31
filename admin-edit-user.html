@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Edit User — Apex Capital Admin</title>
+  <style>
+    :root {
+      --deep: #021024; --navy: #052659; --slate: #5483B3;
+      --sky: #7DA0CA; --ice: #C1E8FF; --mist: #E0F2FE; --white: #FFFFFF;
+      --sidebar-width: 260px; --accent: #2ecc71; --danger: #e74c3c; --warn: #f1c40f;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--deep); color: #fff; overflow-x: hidden; line-height: 1.6;
+      max-width: 100vw; width: 100%;
+    }
+
+    /* ===== PARTICLES ===== */
+    .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle {
+      position: absolute; width: 3px; height: 3px; background: var(--sky);
+      border-radius: 50%; opacity: 0.15; animation: floatParticle linear infinite;
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 0.2; } 90% { opacity: 0.2; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* ===== AUTH GATE ===== */
+    .auth-gate {
+      position: fixed; inset: 0; z-index: 99999;
+      background: linear-gradient(160deg, var(--deep) 0%, var(--navy) 50%, #0a3a7a 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+    .auth-gate.done { opacity: 0; visibility: hidden; pointer-events: none; }
+    .auth-gate p { margin-top: 24px; color: var(--sky); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
+
+    /* ===== APP ===== */
+    .app { display: flex; min-height: 100vh; position: relative; z-index: 1; width: 100%; max-width: 100vw; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, rgba(5,38,89,0.6), rgba(2,16,36,0.9));
+      border-right: 1px solid rgba(193,232,255,0.08);
+      backdrop-filter: blur(20px);
+      position: fixed; inset: 0 auto 0 0;
+      z-index: 200;
+      display: flex; flex-direction: column;
+      padding: 24px 20px;
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .sidebar-overlay {
+      position: fixed; inset: 0; background: rgba(2,16,36,0.6);
+      backdrop-filter: blur(4px); z-index: 199;
+      display: none; opacity: 0; transition: opacity 0.3s;
+    }
+    .sidebar-overlay.show { display: block; opacity: 1; }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 18px; font-weight: 500; letter-spacing: -0.2px;
+      text-decoration: none; color: #fff; margin-bottom: 48px;
+      padding: 0 8px;
+    }
+    .sidebar-brand span { color: var(--ice); }
+    .sidebar-brand span b { color: #fff; font-weight: 600; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 10px;
+      color: var(--sky); text-decoration: none; font-size: 13px; font-weight: 400;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      cursor: pointer; border: none; background: none; width: 100%; font-family: inherit;
+    }
+    .nav-item:hover {
+      background: linear-gradient(135deg, rgba(193,232,255,0.06), rgba(84,131,179,0.03));
+      color: var(--ice); transform: translateX(4px);
+    }
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(193,232,255,0.1), rgba(84,131,179,0.05));
+      color: #fff;
+      box-shadow: 0 2px 16px rgba(84,131,179,0.1), inset 0 1px 0 rgba(193,232,255,0.08);
+      border: 1px solid rgba(193,232,255,0.1);
+    }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; stroke-width: 2; }
+    .sidebar-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(193,232,255,0.05); }
+    .user-pill {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px; border-radius: 12px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.04), rgba(84,131,179,0.02));
+      border: 1px solid rgba(193,232,255,0.06);
+      cursor: pointer; transition: all 0.3s ease;
+      text-decoration: none; color: inherit;
+    }
+    .user-pill:hover {
+      background: linear-gradient(160deg, rgba(193,232,255,0.08), rgba(84,131,179,0.04));
+      border-color: rgba(193,232,255,0.12);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(2,16,36,0.25);
+    }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      display: grid; place-items: center; font-size: 12px; font-weight: 600; color: var(--deep);
+    }
+    .user-info { text-align: left; }
+    .user-name { font-size: 12px; font-weight: 500; color: #fff; }
+    .user-role { font-size: 11px; color: var(--slate); }
+
+    /* ===== MAIN ===== */
+    .main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; position: relative; width: calc(100% - var(--sidebar-width)); max-width: 100vw; }
+
+    /* ===== TOPBAR ===== */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(2,16,36,0.85); backdrop-filter: blur(20px) saturate(1.1);
+      border-bottom: 1px solid rgba(193,232,255,0.05);
+      padding: 14px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%;
+    }
+    .topbar-logo-display { display: flex; align-items: center; gap: 10px; }
+    .topbar-logo-text { font-size: 16px; font-weight: 500; letter-spacing: -0.2px; color: #fff; }
+    .topbar-logo-text span { color: var(--ice); }
+    .topbar-logo-text span b { color: #fff; font-weight: 600; }
+    .admin-badge {
+      margin-left: 8px; padding: 2px 8px; border-radius: 5px;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      color: var(--deep); font-size: 9px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(193,232,255,0.03); border: 1px solid rgba(193,232,255,0.06);
+      display: grid; place-items: center; color: var(--sky);
+      cursor: pointer; transition: all 0.25s ease; flex-shrink: 0;
+    }
+    .icon-btn:hover {
+      background: rgba(193,232,255,0.08); border-color: rgba(193,232,255,0.14);
+      color: var(--ice); transform: translateY(-1px) scale(1.05);
+    }
+    .mobile-toggle { display: none; background: none; border: none; color: var(--ice); cursor: pointer; flex-shrink: 0; }
+
+    /* ===== DASHBOARD ===== */
+    .dashboard { padding: 28px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    /* ===== PAGE HEADER ===== */
+    .page-header {
+      margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between;
+      flex-wrap: wrap; gap: 14px;
+      animation: slideDown 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
+      opacity: 0; width: 100%;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .page-header h1 { font-size: 26px; font-weight: 500; letter-spacing: -0.5px; margin-bottom: 4px; }
+    .page-header h1 .grad {
+      background: linear-gradient(135deg, #fff 20%, var(--sky) 60%, var(--ice) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .page-header p { color: var(--sky); font-size: 13px; font-weight: 400; }
+    .page-header-actions { display:flex; gap:10px; flex-wrap:wrap; }
+
+    /* ===== PANELS ===== */
+    .panel {
+      padding: 24px; border-radius: 22px;
+      background: linear-gradient(165deg, rgba(193,232,255,0.06), rgba(84,131,179,0.02));
+      border: 1px solid rgba(193,232,255,0.08);
+      backdrop-filter: blur(12px);
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+      animation: slideUp 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
+      opacity: 0;
+      width: 100%;
+    }
+    .panel:nth-child(1) { animation-delay: 0.1s; }
+    .panel:nth-child(2) { animation-delay: 0.18s; }
+    .panel:nth-child(3) { animation-delay: 0.26s; }
+    .panel:nth-child(4) { animation-delay: 0.34s; }
+    .panel:nth-child(5) { animation-delay: 0.42s; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .panel::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--slate), var(--sky), var(--ice));
+      background-size: 200% 100%;
+      animation: shimmerLine 3s linear infinite;
+    }
+    @keyframes shimmerLine {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .panel:hover {
+      border-color: rgba(193,232,255,0.18);
+      box-shadow: 0 20px 50px rgba(2,16,36,0.4), 0 0 0 1px rgba(193,232,255,0.06);
+      transform: translateY(-3px);
+    }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+    .panel-title { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 8px; letter-spacing: -0.1px; }
+
+    /* ===== USER HERO ===== */
+    .user-hero {
+      display: flex; align-items: center; gap: 20px;
+      margin-bottom: 4px;
+      animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.1s forwards;
+      opacity: 0; transform: scale(0.9);
+      width: 100%; flex-wrap: wrap;
+    }
+    @keyframes popIn {
+      to { opacity: 1; transform: scale(1); }
+    }
+    .user-hero-avatar {
+      width: 80px; height: 80px; border-radius: 22px;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      display: grid; place-items: center;
+      font-size: 26px; font-weight: 700; color: var(--deep);
+      flex-shrink: 0;
+      box-shadow: 0 8px 32px rgba(84,131,179,0.25);
+      animation: avatarPulse 3s ease-in-out infinite;
+    }
+    @keyframes avatarPulse {
+      0%, 100% { box-shadow: 0 8px 32px rgba(84,131,179,0.25); }
+      50% { box-shadow: 0 8px 40px rgba(125,160,202,0.45); }
+    }
+    .user-hero-info { min-width: 0; flex: 1; }
+    .user-hero-info h2 { font-size: 24px; font-weight: 600; letter-spacing: -0.4px; margin-bottom: 4px; word-break: break-word; }
+    .user-hero-info p { color: var(--sky); font-size: 13px; word-break: break-all; }
+
+    /* ===== GRID ===== */
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+
+    /* ===== DETAIL ROWS ===== */
+    .detail-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0; border-bottom: 1px solid rgba(193,232,255,0.05);
+      transition: all 0.2s ease; gap: 12px;
+    }
+    .detail-row:hover { padding-left: 6px; }
+    .detail-label { color: var(--slate); font-size: 12px; font-weight: 400; flex-shrink: 0; }
+    .detail-value { color: #fff; font-size: 13px; font-weight: 500; text-align: right; word-break: break-word; min-width: 0; }
+
+    /* ===== STATUS BADGES ===== */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 8px; border-radius: 16px;
+      font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+    .status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+    .status-active { background: rgba(46,204,113,0.08); border: 1px solid rgba(46,204,113,0.2); color: #2ecc71; }
+    .status-active::before { background: #2ecc71; box-shadow: 0 0 6px #2ecc71; }
+    .status-pending { background: rgba(241,196,15,0.08); border: 1px solid rgba(241,196,15,0.2); color: #f1c40f; }
+    .status-pending::before { background: #f1c40f; box-shadow: 0 0 6px #f1c40f; }
+    .status-locked { background: rgba(231,76,60,0.08); border: 1px solid rgba(231,76,60,0.2); color: #e74c3c; }
+    .status-locked::before { background: #e74c3c; box-shadow: 0 0 6px #e74c3c; }
+
+    /* ===== INPUTS ===== */
+    .form-input {
+      width: 100%; padding: 10px 14px;
+      background: rgba(193,232,255,0.04);
+      border: 1px solid rgba(193,232,255,0.1);
+      border-radius: 10px; color: #fff; font-size: 13px; font-family: inherit;
+      outline: none; transition: all 0.3s ease; min-width: 0;
+    }
+    .form-input:focus {
+      border-color: var(--sky); background: rgba(193,232,255,0.07);
+      box-shadow: 0 0 0 3px rgba(125,160,202,0.1), 0 0 20px rgba(125,160,202,0.08);
+      transform: translateY(-1px);
+    }
+    .form-input::placeholder { color: var(--slate); }
+    .form-input:read-only {
+      background: rgba(193,232,255,0.02);
+      border-color: rgba(193,232,255,0.06);
+      color: var(--ice);
+      cursor: default;
+    }
+    .input-group { display: flex; gap: 8px; align-items: center; margin-top: 8px; width: 100%; }
+    .input-group .form-input { flex: 1; margin-top: 0; min-width: 0; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      padding: 10px 18px; border-radius: 10px; border: none;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      position: relative; overflow: hidden; white-space: nowrap;
+    }
+    .btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+    .btn:hover::after { transform: translateX(100%); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      color: var(--deep);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(84,131,179,0.35);
+    }
+    .btn-outline {
+      background: rgba(193,232,255,0.04);
+      border: 1px solid rgba(193,232,255,0.1);
+      color: var(--sky);
+    }
+    .btn-outline:hover {
+      background: rgba(193,232,255,0.08);
+      border-color: rgba(193,232,255,0.18);
+      color: var(--ice);
+      transform: translateY(-1px);
+    }
+    .btn-danger {
+      background: rgba(231,76,60,0.12);
+      border: 1px solid rgba(231,76,60,0.25);
+      color: #e74c3c;
+    }
+    .btn-danger:hover {
+      background: rgba(231,76,60,0.2);
+      border-color: rgba(231,76,60,0.4);
+      color: #ff6b6b;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(231,76,60,0.2);
+    }
+    .btn-success {
+      background: rgba(46,204,113,0.12);
+      border: 1px solid rgba(46,204,113,0.25);
+      color: #2ecc71;
+    }
+    .btn-success:hover {
+      background: rgba(46,204,113,0.2);
+      border-color: rgba(46,204,113,0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(46,204,113,0.2);
+    }
+    .btn-warn {
+      background: rgba(241,196,15,0.12);
+      border: 1px solid rgba(241,196,15,0.25);
+      color: #f1c40f;
+    }
+    .btn-warn:hover {
+      background: rgba(241,196,15,0.2);
+      border-color: rgba(241,196,15,0.4);
+      color: #f39c12;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(241,196,15,0.2);
+    }
+    .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 8px; }
+
+    /* ===== APPROVAL GRID ===== */
+    .approval-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 4px; width: 100%;
+    }
+    .approval-cell {
+      padding: 18px; border-radius: 16px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.04), rgba(84,131,179,0.01));
+      border: 1px solid rgba(193,232,255,0.06);
+      text-align: center;
+      transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+      position: relative; overflow: hidden;
+      animation: cellIn 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
+      opacity: 0; transform: translateY(20px);
+      min-width: 0;
+    }
+    .approval-cell:nth-child(1) { animation-delay: 0.1s; }
+    .approval-cell:nth-child(2) { animation-delay: 0.18s; }
+    .approval-cell:nth-child(3) { animation-delay: 0.26s; }
+    .approval-cell:nth-child(4) { animation-delay: 0.34s; }
+    @keyframes cellIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .approval-cell:hover {
+      border-color: rgba(193,232,255,0.15);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(2,16,36,0.3);
+    }
+    .approval-cell-label {
+      font-size: 10px; color: var(--slate);
+      text-transform: uppercase; letter-spacing: 1.2px;
+      margin-bottom: 8px; font-weight: 600;
+    }
+    .approval-cell-value { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+    .approval-cell .form-input { text-align: center; font-size: 12px; padding: 8px; }
+
+    /* ===== SERIALS GRID ===== */
+      .serials-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 100%;
+      }
+      .serial-box {
+        padding: 14px; border-radius: 14px;
+        background: linear-gradient(160deg, rgba(193,232,255,0.04), rgba(84,131,179,0.01));
+        border: 1px solid rgba(193,232,255,0.06);
+        transition: all 0.3s ease;
+      }
+      .serial-box:hover {
+        border-color: rgba(193,232,255,0.12);
+        transform: translateY(-2px);
+      }
+      .serial-box .detail-label { margin-bottom: 8px; display: block; }
+    .serial-status {
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    width: fit-content;
+      }
+    .serial-status::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+    .serial-status.approved {
+      background: rgba(46,204,113,0.1);
+      border: 1px solid rgba(46,204,113,0.2);
+      color: #2ecc71;
+    }
+    .serial-status.approved::before {
+      background: #2ecc71;
+      box-shadow: 0 0 6px #2ecc71;
+    }
+    .serial-status.pending {
+      background: rgba(193,232,255,0.04);
+      border: 1px solid rgba(193,232,255,0.08);
+      color: var(--slate);
+    }
+    .serial-status.pending::before {
+      background: var(--slate);
+    }
+    .serial-status.unpaid {
+      background: rgba(231,76,60,0.08);
+      border: 1px solid rgba(231,76,60,0.15);
+      color: #e74c3c;
+    }
+    .serial-status.unpaid::before {
+      background: #e74c3c;
+      box-shadow: 0 0 6px rgba(231,76,60,0.4);
+    }
+    /* ===== RAW DATA (JSON VIEWER) ===== */
+    .raw-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+    }
+    .raw-block {
+      color: var(--sky); font-size: 12px; line-height: 1.7;
+      overflow-x: auto; background: rgba(0,0,0,0.25);
+      padding: 18px; border-radius: 14px;
+      border: 1px solid rgba(193,232,255,0.06);
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Fira Code', monospace;
+      max-height: 420px;
+      overflow: auto;
+      width: 100%;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .raw-block::-webkit-scrollbar { width: 6px; height: 6px; }
+    .raw-block::-webkit-scrollbar-thumb { background: rgba(193,232,255,0.15); border-radius: 4px; }
+    .json-key   { color: #7DA0CA; }
+    .json-string{ color: #C1E8FF; }
+    .json-number{ color: #2ecc71; }
+    .json-bool  { color: #f1c40f; }
+    .json-null  { color: #e74c3c; }
+
+    /* ===== PROCESS OVERLAY (LOADER) ===== */
+    .process-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(2, 16, 36, 0.96); backdrop-filter: blur(20px);
+    }
+    .process-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .process-scene { width: 160px; height: 160px; perspective: 600px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center; }
+    .process-orbital { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; animation: tiltScene 6s ease-in-out infinite; }
+    .process-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform-style: preserve-3d; }
+    .process-ring-outer {
+      width: 120px; height: 120px; margin: -60px 0 0 -60px;
+      border: 2.5px solid transparent; border-top-color: var(--sky); border-right-color: var(--ice); border-left-color: var(--slate);
+      animation: spinLogo1 2.5s linear infinite; transform: rotateX(60deg) rotateY(20deg);
+      filter: drop-shadow(0 0 14px rgba(125,160,202,0.6));
+    }
+    .process-ring-mid {
+      width: 90px; height: 90px; margin: -45px 0 0 -45px;
+      border: 2px solid transparent; border-top-color: var(--ice); border-bottom-color: var(--sky);
+      animation: spinLogo2 2s linear infinite reverse; transform: rotateX(-45deg) rotateY(35deg);
+      filter: drop-shadow(0 0 12px rgba(193,232,255,0.5));
+    }
+    .process-ring-inner {
+      width: 60px; height: 60px; margin: -30px 0 0 -30px;
+      border: 1.5px solid transparent; border-right-color: var(--slate); border-bottom-color: var(--ice);
+      animation: spinLogo3 1.5s linear infinite; transform: rotateX(30deg) rotateY(-25deg);
+      filter: drop-shadow(0 0 10px rgba(84,131,179,0.6));
+    }
+    .process-core {
+      position: absolute; top: 50%; left: 50%;
+      width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+      background: radial-gradient(circle, var(--ice), var(--sky));
+      box-shadow: 0 0 40px rgba(193,232,255,0.8), 0 0 80px rgba(125,160,202,0.3);
+      animation: pulseCore 1.5s ease-in-out infinite;
+    }
+    .process-core::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+      background: #fff; box-shadow: 0 0 16px rgba(255,255,255,0.9);
+    }
+    @keyframes pulseCore { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.85; } }
+    @keyframes tiltScene {
+      0%, 100% { transform: rotateX(-10deg) rotateY(0deg); }
+      25% { transform: rotateX(5deg) rotateY(15deg); }
+      50% { transform: rotateX(-5deg) rotateY(-10deg); }
+      75% { transform: rotateX(10deg) rotateY(5deg); }
+    }
+    @keyframes spinLogo1 { 100% { transform: rotateX(60deg) rotateY(20deg) rotateZ(360deg); } }
+    @keyframes spinLogo2 { 100% { transform: rotateX(-45deg) rotateY(35deg) rotateZ(-360deg); } }
+    @keyframes spinLogo3 { 100% { transform: rotateX(30deg) rotateY(-25deg) rotateZ(360deg); } }
+    .process-label { font-size: 13px; color: var(--sky); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
+    .process-sub { font-size: 11px; color: var(--slate); margin-top: 6px; }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      color: var(--deep); padding: 12px 24px; border-radius: 12px;
+      font-size: 13px; font-weight: 600;
+      box-shadow: 0 12px 36px rgba(84,131,179,0.3);
+      z-index: 10000; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+      pointer-events: none; max-width: 90vw; text-align: center;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.error { background: linear-gradient(135deg, #c0392b, #e74c3c); color: #fff; }
+    .toast.success { background: linear-gradient(135deg, #27ae60, #2ecc71); color: #fff; }
+
+    /* ===== PANEL LOADER ===== */
+    .panel-loader {
+      position: absolute; inset: 0; z-index: 20;
+      background: rgba(2,16,36,0.75); backdrop-filter: blur(10px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
+      border-radius: 22px;
+    }
+    .panel-loader.show { opacity: 1; pointer-events: all; }
+    .mini-orbital { width: 50px; height: 50px; position: relative; transform-style: preserve-3d; perspective: 200px; margin-bottom: 10px; }
+    .mini-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; border: 2px solid transparent; transform-style: preserve-3d; }
+    .mini-ring-1 { width: 40px; height: 40px; margin: -20px 0 0 -20px; border-top-color: var(--sky); border-right-color: var(--ice); animation: spinLogo1 2s linear infinite; transform: rotateX(55deg) rotateY(15deg); }
+    .mini-ring-2 { width: 28px; height: 28px; margin: -14px 0 0 -14px; border-bottom-color: var(--sky); border-left-color: var(--ice); animation: spinLogo2 1.5s linear infinite reverse; transform: rotateX(-40deg) rotateY(25deg); }
+    .mini-core { position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: var(--ice); box-shadow: 0 0 12px rgba(193,232,255,0.6); animation: pulseCore 1.2s ease-in-out infinite; }
+
+    /* ===== BILLING PANEL ===== */
+    .billing-panel {
+      padding: 28px; border-radius: 22px;
+      background: linear-gradient(165deg, rgba(193,232,255,0.08), rgba(84,131,179,0.04));
+      border: 1px solid rgba(193,232,255,0.12);
+      backdrop-filter: blur(12px);
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+      animation: slideUp 0.7s cubic-bezier(0.4,0,0.2,1) 0.2s forwards;
+      opacity: 0;
+    }
+    .billing-panel::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--ice), var(--sky), var(--slate));
+      background-size: 200% 100%;
+      animation: shimmerLine 3s linear infinite;
+    }
+    .billing-panel:hover {
+      border-color: rgba(193,232,255,0.2);
+      box-shadow: 0 20px 50px rgba(2,16,36,0.4), 0 0 0 1px rgba(193,232,255,0.06);
+      transform: translateY(-3px);
+    }
+    .billing-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 4px; width: 100%;
+    }
+    .billing-cell {
+      padding: 20px 14px; border-radius: 16px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.06), rgba(84,131,179,0.02));
+      border: 1px solid rgba(193,232,255,0.08);
+      text-align: center;
+      transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+      position: relative; overflow: hidden;
+      animation: cellIn 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
+      opacity: 0; transform: translateY(20px);
+      min-width: 0;
+    }
+    .billing-cell:nth-child(1) { animation-delay: 0.1s; }
+    .billing-cell:nth-child(2) { animation-delay: 0.18s; }
+    .billing-cell:nth-child(3) { animation-delay: 0.26s; }
+    .billing-cell:nth-child(4) { animation-delay: 0.34s; }
+    .billing-cell:hover {
+      border-color: rgba(193,232,255,0.18);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(2,16,36,0.3);
+    }
+    .billing-cell-stage {
+      font-size: 10px; color: var(--slate);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 8px; font-weight: 600;
+    }
+    .billing-cell-amount {
+      font-size: 22px; font-weight: 700;
+      background: linear-gradient(135deg, #fff, var(--ice));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      letter-spacing: -0.5px;
+    }
+    .billing-cell-label {
+      font-size: 10px; color: var(--sky);
+      margin-top: 6px; letter-spacing: 0.5px;
+    }
+    .billing-cell.zero {
+      opacity: 0.6;
+    }
+    .billing-cell.zero .billing-cell-amount {
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      font-size: 18px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; }
+      .mobile-toggle { display: block; }
+      .topbar { padding: 10px 14px; }
+      .dashboard { padding: 14px; }
+      .content-grid { grid-template-columns: 1fr; gap: 14px; }
+      .user-hero { flex-direction: row; align-items: center; gap: 14px; }
+      .user-hero-avatar { width: 56px; height: 56px; border-radius: 16px; font-size: 20px; }
+      .user-hero-info h2 { font-size: 18px; }
+      .user-hero-info p { font-size: 12px; }
+      .approval-grid { grid-template-columns: 1fr; gap: 10px; }
+      .serials-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .billing-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .billing-cell { padding: 16px 10px; }
+      .billing-cell-amount { font-size: 18px; }
+      .page-header h1 { font-size: 20px; }
+      .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .page-header-actions { width: 100%; }
+      .page-header-actions .btn { flex: 1; }
+      .panel { padding: 18px; border-radius: 18px; margin-bottom: 14px; }
+      .panel-header { margin-bottom: 14px; }
+      .detail-row { flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0; }
+      .detail-value { text-align: left; font-size: 12px; }
+      .btn { padding: 8px 14px; font-size: 12px; }
+      .raw-block { padding: 14px; font-size: 11px; max-height: 320px; }
+    }
+    @media (max-width: 380px) {
+      .user-hero { flex-direction: column; align-items: flex-start; }
+      .user-hero-avatar { width: 64px; height: 64px; }
+      .page-header-actions { flex-direction: column; width: 100%; }
+      .page-header-actions .btn { width: 100%; }
+      .panel-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .panel-header .btn { width: 100%; }
+      .approval-cell { padding: 14px; }
+      .serials-grid { grid-template-columns: 1fr; }
+      .billing-grid { grid-template-columns: 1fr; }
+      .billing-cell-amount { font-size: 16px; }
+      .input-group { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Auth Gate -->
+  <div class="auth-gate" id="authGate">
+    <div class="process-scene">
+      <div class="process-orbital">
+        <div class="process-ring process-ring-outer"></div>
+        <div class="process-ring process-ring-mid"></div>
+        <div class="process-ring process-ring-inner"></div>
+        <div class="process-core"></div>
+      </div>
+    </div>
+    <p>Loading user profile...</p>
+  </div>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <a href="admin.html" class="sidebar-brand">
+        <span>Apex <b>Capital</b></span>
+      </a>
+      <div style="margin-bottom:28px;">
+        <div style="font-size:10px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:1.5px;padding:0 12px;margin-bottom:12px;">Administration</div>
+        <a href="admin.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </a>
+        <a href="admin-users.html" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Users
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-pill">
+          <div class="user-avatar" id="adminAvatar">AD</div>
+          <div class="user-info">
+            <div class="user-name" id="adminName">Admin</div>
+            <div class="user-role">Super Administrator</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <button class="mobile-toggle" onclick="toggleSidebar()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="topbar-logo-display" style="min-width:0;">
+            <div class="topbar-logo-text" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Apex <span><b>Capital</b></span></div>
+            <span class="admin-badge">Admin</span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" onclick="history.back()" title="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Dashboard -->
+      <div class="dashboard" id="dashboardContent">
+        <div class="page-header">
+          <div style="min-width:0;">
+            <h1><span class="grad">User Profile</span></h1>
+            <p>Full account details, balance control & approval management.</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="btn btn-outline" onclick="history.back()">Back to Users</button>
+            <button class="btn btn-danger" onclick="deleteCurrentUser()">Delete User</button>
+          </div>
+        </div>
+
+        <!-- Profile Panel -->
+        <div class="panel" id="profilePanel">
+          <div class="panel-loader show" id="profileLoader">
+            <div class="mini-orbital">
+              <div class="mini-ring mini-ring-1"></div>
+              <div class="mini-ring mini-ring-2"></div>
+              <div class="mini-core"></div>
+            </div>
+            <p style="color:var(--sky);font-size:11px;letter-spacing:1px;text-transform:uppercase;">Loading user data...</p>
+          </div>
+          <div id="profileContent" style="display:none;">
+            <div class="user-hero" id="userHero"></div>
+          </div>
+        </div>
+
+        <!-- Edit Grid -->
+        <div class="content-grid">
+          <!-- Financial Details -->
+          <div class="panel" id="financialPanel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Financial Details
+              </div>
+              <button class="btn btn-success btn-sm" onclick="saveBalance()">Save Balance</button>
+            </div>
+            <div id="financialDetails"></div>
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(193,232,255,0.06);">
+              <div class="detail-label" style="margin-bottom:6px;">Set New Balance</div>
+              <div class="input-group">
+                <span style="color:var(--sky);font-weight:600;flex-shrink:0;">$</span>
+                <input type="number" class="form-input" id="balanceInput" placeholder="0.00" step="0.01">
+              </div>
+            </div>
+          </div>
+
+          <!-- Account Status -->
+          <div class="panel" id="statusPanel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Account Status
+              </div>
+            </div>
+            <div id="statusDetails"></div>
+          </div>
+        </div>
+
+        <!-- Billing Amounts Panel -->
+        <div class="billing-panel" id="billingPanel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              Verification Billing Amounts
+            </div>
+            <span style="font-size:11px;color:var(--slate);">4-Stage Payment Codes</span>
+          </div>
+          <div class="billing-grid" id="billingGrid"></div>
+        </div>
+
+        <!-- Set Billing Amount Panel -->
+        <div class="panel" id="billingSetPanel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              Set Billing Amount
+            </div>
+            <button class="btn btn-success btn-sm" onclick="saveBillingAmount()">Save Amount</button>
+          </div>
+          <div style="padding-top:4px;">
+            <div class="detail-label" style="margin-bottom:8px;">Enter amount to set for this user</div>
+            <div class="input-group">
+              <span style="color:var(--sky);font-weight:600;flex-shrink:0;">$</span>
+              <input type="number" class="form-input" id="setBillingInput" placeholder="0.00" step="0.01">
+            </div>
+            <div id="billingSetStatus" style="margin-top:10px;font-size:12px;display:none;"></div>
+          </div>
+        </div>
+
+        <!-- Reset Approvals Panel -->
+        <div class="panel" id="resetApprovalsPanel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+              Reset Approvals
+            </div>
+            <button class="btn btn-warn btn-sm" onclick="resetUserApprovals()">Reset Now</button>
+          </div>
+          <div style="padding-top:4px;">
+            <div class="detail-label" style="margin-bottom:8px;">Clears all user approval flags and resets verification stages.</div>
+            <div style="font-size:12px;color:var(--slate);line-height:1.6;">
+              This will reset TAC, BVC, CCC, and FSC approval statuses back to their initial pending state. The user will need to re-complete all verification stages.
+            </div>
+            <div id="resetApprovalsStatus" style="margin-top:10px;font-size:12px;display:none;"></div>
+          </div>
+        </div>
+
+        <!-- Serials Panel -->
+        <div class="panel" id="serialsPanel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Serials
+            </div>
+            <button class="btn btn-success btn-sm" onclick="createSerials()">Generate Serials</button>
+          </div>
+          <div class="serials-grid">
+            <div class="serial-box">
+              <span class="detail-label">Serial 1 <span style="color:var(--slate);font-size:10px;">(TAC)</span></span>
+              <input type="text" class="form-input" id="serial1" placeholder="Not generated" readonly>
+              <div class="serial-status" id="serialStatus1">Checking...</div>
+            </div>
+            <div class="serial-box">
+              <span class="detail-label">Serial 2 <span style="color:var(--slate);font-size:10px;">(BVC)</span></span>
+              <input type="text" class="form-input" id="serial2" placeholder="Not generated" readonly>
+              <div class="serial-status" id="serialStatus2">Checking...</div>
+            </div>
+            <div class="serial-box">
+              <span class="detail-label">Serial 3 <span style="color:var(--slate);font-size:10px;">(CCC)</span></span>
+              <input type="text" class="form-input" id="serial3" placeholder="Not generated" readonly>
+              <div class="serial-status" id="serialStatus3">Checking...</div>
+            </div>
+            <div class="serial-box">
+              <span class="detail-label">Serial 4 <span style="color:var(--slate);font-size:10px;">(FSC)</span></span>
+              <input type="text" class="form-input" id="serial4" placeholder="Not generated" readonly>
+              <div class="serial-status" id="serialStatus4">Checking...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Raw Data -->
+        <div class="panel" id="rawPanel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              Raw Data
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="copyRawJson()">Copy JSON</button>
+          </div>
+          <div class="raw-toolbar">
+            <span style="font-size:11px;color:var(--slate);">Server response body</span>
+          </div>
+          <pre class="raw-block" id="rawData"></pre>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Process Overlay -->
+  <div class="process-overlay" id="processOverlay">
+    <div class="process-scene">
+      <div class="process-orbital">
+        <div class="process-ring process-ring-outer"></div>
+        <div class="process-ring process-ring-mid"></div>
+        <div class="process-ring process-ring-inner"></div>
+        <div class="process-core"></div>
+      </div>
+    </div>
+    <div class="process-label" id="processLabel">Processing...</div>
+    <div class="process-sub" id="processSub">Please wait</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  const API_BASE = 'https://nexusbank-jjy2.onrender.com/api/V1';
+  const token = localStorage.getItem('apex_token');
+  let currentUser = null;
+  let currentUserId = null;
+  let currentRawJson = '';
+
+  if (!token) {
+    window.location.href = 'auth.html#login';
+  } else {
+    setTimeout(() => document.getElementById('authGate').classList.add('done'), 900);
+  }
+
+  function getUrlParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  async function safeJson(res) {
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
+      const text = await res.text();
+      throw new Error('Server returned HTML instead of JSON (status ' + res.status + '). ' + text.slice(0, 120));
+    }
+    return res.json();
+  }
+
+  async function apiGet(endpoint) {
+    try {
+      const res = await fetch(API_BASE + endpoint, {
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+      });
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data.message || 'Request failed');
+      return data;
+    } catch (err) {
+      console.error('API Error:', err);
+      showToast(err.message || 'Network error', 'error');
+      return null;
+    }
+  }
+
+  async function apiPost(endpoint, body) {
+    try {
+      const res = await fetch(API_BASE + endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data.message || 'Request failed');
+      return data;
+    } catch (err) {
+      console.error('API Error:', err);
+      showToast(err.message || 'Network error', 'error');
+      return null;
+    }
+  }
+
+  async function apiPut(endpoint, body) {
+    try {
+      const res = await fetch(API_BASE + endpoint, {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data.message || 'Request failed');
+      return data;
+    } catch (err) {
+      console.error('API Error:', err);
+      showToast(err.message || 'Network error', 'error');
+      return null;
+    }
+  }
+
+  async function apiDelete(endpoint) {
+    try {
+      const res = await fetch(API_BASE + endpoint, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+      });
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data.message || 'Request failed');
+      return data;
+    } catch (err) {
+      console.error('API Error:', err);
+      showToast(err.message || 'Network error', 'error');
+      return null;
+    }
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function getStatusClass(status) {
+    const s = String(status || '').toLowerCase();
+    if (s.includes('active')) return 'status-active';
+    if (s.includes('pending')) return 'status-pending';
+    if (s.includes('lock') || s.includes('suspend')) return 'status-locked';
+    return 'status-pending';
+  }
+
+  function syntaxHighlightJson(json) {
+    if (!json) return '';
+    const str = JSON.stringify(json, null, 2);
+    return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+      let cls = 'json-number';
+      if (/^"/.test(match)) {
+        if (/:$/.test(match)) {
+          cls = 'json-key';
+          match = match.slice(0, -1) + '</span><span style="color:var(--slate)">:</span>';
+          return '<span class="' + cls + '">' + match;
+        } else {
+          cls = 'json-string';
+        }
+      } else if (/true|false/.test(match)) {
+        cls = 'json-bool';
+      } else if (/null/.test(match)) {
+        cls = 'json-null';
+      }
+      return '<span class="' + cls + '">' + match + '</span>';
+    });
+  }
+
+  async function loadProfile() {
+    const data = await apiGet('/user/viewProfile');
+    if (data) {
+      const userArr = data.data || data.user || data;
+      const user = Array.isArray(userArr) ? userArr[0] : userArr;
+      if (!user) return;
+      const fullName = user.fullname || user.name || 'Admin';
+      document.getElementById('adminName').textContent = fullName;
+      document.getElementById('adminAvatar').textContent = fullName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+    }
+  }
+
+  async function loadUser() {
+    currentUserId = getUrlParam('id');
+    if (!currentUserId) {
+      showToast('No user ID provided', 'error');
+      return;
+    }
+
+    const data = await apiGet('/admin/allUsers');
+    console.log(data)
+    let users = [];
+    
+    if (data && Array.isArray(data.data) && data.data.length > 0) {
+      users = Array.isArray(data.data[0]) ? data.data[0] : [];
+    }
+
+    currentUser = users.find(u => (u.userId) === currentUserId);
+
+    if (!currentUser) {
+      document.getElementById('profileLoader').innerHTML = '<p style="color:#e74c3c;font-size:13px;">User not found</p>';
+      return;
+    }
+
+    renderUser(currentUser);
+    document.getElementById('profileLoader').classList.remove('show');
+    document.getElementById('profileContent').style.display = 'block';
+  }
+  function populateSerialInputs(serials) {
+    const arr = Array.isArray(serials) ? serials : [];
+    const ids = ['serial1','serial2','serial3','serial4'];
+    ids.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el) el.value = arr[i] || '';
+    });
+  }
+
+  function getApprovalStatus(user, stageIndex) {
+    const keys = [
+      'firstApprovals',
+      'secondApprovals',
+      'thirdApprovals',
+      'fourthApprovals'
+    ];
+    const key = keys[stageIndex];
+    if (!key || !(key in user)) return 'pending';
+    
+    const v = String(user[key] || '').toLowerCase().trim();
+    
+    if (v.includes('approved')) return 'approved';
+    if (v === 'not paid') return 'pending';
+    // if (v.includes('rejected') || v.includes('failed') || v.includes('declined')) return 'unpaid';
+    // return 'pending';
+  }
+
+function renderSerialStatuses(u) {
+  const stages = ['TAC', 'BVC', 'CCC', 'FSC'];
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('serialStatus' + (i + 1));
+    if (!el) continue;
+    const status = getApprovalStatus(u, i);
+    const label = status === 'approved' ? 'Paid & Approved' : status === 'unpaid' ? 'Unpaid / Rejected' : 'Pending';
+    el.textContent = label;
+    el.className = 'serial-status ' + status;
+  }
+}
+  function renderUser(u) {
+    const name = u.fullname || u.name || 'Unknown';
+    const email = u.email || 'no-email@apex.capital';
+    const initials = name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+    const status = u.loanStatus || u.status || 'Pending';
+    const joined = u.createdAt || u.joined ? new Date(u.createdAt || u.joined).toLocaleDateString() : '—';
+
+    document.getElementById('userHero').innerHTML = `
+      <div class="user-hero-avatar">${initials}</div>
+      <div class="user-hero-info">
+        <h2>${escapeHtml(name)}</h2>
+        <p>${escapeHtml(email)}</p>
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span class="status-badge ${getStatusClass(status)}">${status}</span>
+          <span style="color:var(--slate);font-size:11px;">ID: ${u.userId || '—'}</span>
+        </div>
+      </div>
+    `;
+
+    const balance = parseFloat(u.availableBalance || 0);
+    const pending = parseFloat(u.pendingBalance || 0);
+    const spent   = parseFloat(u.spentBalance || 0);
+    const total   = balance + pending;
+
+    document.getElementById('financialDetails').innerHTML = `
+      <div class="detail-row"><span class="detail-label">Total Balance</span><span class="detail-value">$${balance.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+      <div class="detail-row"><span class="detail-label">Pending Balance</span><span class="detail-value">$${pending.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+      <div class="detail-row"><span class="detail-label">Sent Balance</span><span class="detail-value">$${spent.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+      <div class="detail-row"><span class="detail-label">Combined Total</span><span class="detail-value">$${total.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+      <div class="detail-row"><span class="detail-label">Account Type</span><span class="detail-value">${u.accountType || '—'}</span></div>
+    `;
+
+    document.getElementById('balanceInput').value = balance.toFixed(2);
+
+    document.getElementById('statusDetails').innerHTML = `
+      <div class="detail-row"><span class="detail-label">Loan Status</span><span class="detail-value"><span class="status-badge ${getStatusClass(status)}">${status}</span></span></div>
+      <div class="detail-row"><span class="detail-label">Joined Date</span><span class="detail-value">${joined}</span></div>
+      <div class="detail-row"><span class="detail-label">Database ID</span><span class="detail-value" style="font-size:10px;color:var(--slate);">${u.userId || '—'}</span></div>
+    `;
+
+    populateSerialInputs(u.serials || u.generatedSerials);
+    loadSerials();
+
+    const b1 = parseFloat(u.billing1amount || 0);
+    const b2 = parseFloat(u.billing2amount || 0);
+    const b3 = parseFloat(u.billing3amount || 0);
+    const b4 = parseFloat(u.billing4amount || 0);
+    document.getElementById('billingGrid').innerHTML = `
+      <div class="billing-cell ${b1 === 0 ? 'zero' : ''}">
+        <div class="billing-cell-stage">Stage 1</div>
+        <div class="billing-cell-amount">$${b1.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+        <div class="billing-cell-label">TAC Required</div>
+      </div>
+      <div class="billing-cell ${b2 === 0 ? 'zero' : ''}">
+        <div class="billing-cell-stage">Stage 2</div>
+        <div class="billing-cell-amount">$${b2.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+        <div class="billing-cell-label">BVC Required</div>
+      </div>
+      <div class="billing-cell ${b3 === 0 ? 'zero' : ''}">
+        <div class="billing-cell-stage">Stage 3</div>
+        <div class="billing-cell-amount">$${b3.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+        <div class="billing-cell-label">CCC Required</div>
+      </div>
+      <div class="billing-cell ${b4 === 0 ? 'zero' : ''}">
+        <div class="billing-cell-stage">Stage 4</div>
+        <div class="billing-cell-amount">$${b4.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+        <div class="billing-cell-label">FSC Required</div>
+      </div>
+    `;
+
+    currentRawJson = JSON.stringify(u, null, 2);
+    document.getElementById('rawData').innerHTML = syntaxHighlightJson(u);
+    renderSerialStatuses(u);
+  }
+
+  function copyRawJson() {
+    if (!currentRawJson) return;
+    navigator.clipboard.writeText(currentRawJson).then(() => {
+      showToast('JSON copied to clipboard', 'success');
+    }).catch(() => {
+      showToast('Copy failed', 'error');
+    });
+  }
+
+  async function saveBalance() {
+    const val = parseFloat(document.getElementById('balanceInput').value);
+    if (isNaN(val) || val < 0) {
+      showToast('Enter a valid balance', 'error');
+      return;
+    }
+    showLoader('Updating Balance...', 'Syncing with ledger');
+    const data = await apiPut('/admin/setAvailableBalance', { userId: currentUserId, availableBalance: val });
+    hideLoader();
+    if (data) {
+      showToast('Balance updated successfully', 'success');
+      if (currentUser) {
+        currentUser.availableBalance = String(val);
+        currentUser.totalBalance = String(val);
+        renderUser(currentUser);
+      }
+    } else {
+      showToast('Failed to update balance', 'error');
+    }
+  }
+
+  async function saveBillingAmount() {
+    const amount = parseFloat(document.getElementById('setBillingInput').value);
+    const statusEl = document.getElementById('billingSetStatus');
+
+    if (isNaN(amount) || amount < 0) {
+      statusEl.textContent = 'Please enter a valid amount';
+      statusEl.style.color = '#e74c3c';
+      statusEl.style.display = 'block';
+      return;
+    }
+
+    const payload = { userId: currentUserId, amount: amount };
+    console.log('[SetBilling] Request payload:', payload);
+    console.log('[SetBilling] Endpoint:', API_BASE + '/admin/setBillingAmount');
+
+    showLoader('Saving Billing Amount...', 'Updating user billing');
+
+    try {
+      const res = await fetch(API_BASE + '/admin/setBillingAmount', {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      console.log('[SetBilling] Response status:', res.status, res.statusText);
+      console.log('[SetBilling] Response data:', data);
+
+      hideLoader();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'HTTP ' + res.status);
+      }
+
+      statusEl.textContent = 'Billing amount saved successfully!';
+      statusEl.style.color = '#2ecc71';
+      statusEl.style.display = 'block';
+      showToast('Billing amount saved', 'success');
+      document.getElementById('setBillingInput').value = '';
+
+      setTimeout(() => loadUser(), 800);
+
+    } catch (err) {
+      hideLoader();
+      console.error('[SetBilling] Error:', err);
+      statusEl.textContent = err.message || 'Failed to save billing amount';
+      statusEl.style.color = '#e74c3c';
+      statusEl.style.display = 'block';
+      showToast('Failed to save billing amount', 'error');
+    }
+  }
+
+  async function resetUserApprovals() {
+    if (!currentUserId) {
+      showToast('No user loaded', 'error');
+      return;
+    }
+    if (!confirm('Are you sure you want to reset all approval flags for this user? This will clear TAC, BVC, CCC, and FSC statuses.')) return;
+
+    const statusEl = document.getElementById('resetApprovalsStatus');
+    showLoader('Resetting Approvals...', 'Clearing verification stages');
+
+    try {
+      const res = await fetch(API_BASE + '/admin/resetUserApprovals', {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUserId })
+      });
+
+      const data = await res.json();
+      console.log('[ResetApprovals] Response status:', res.status, res.statusText);
+      console.log('[ResetApprovals] Response data:', data);
+
+      hideLoader();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'HTTP ' + res.status);
+      }
+
+      statusEl.textContent = 'Approvals reset successfully!';
+      statusEl.style.color = '#2ecc71';
+      statusEl.style.display = 'block';
+      showToast('User approvals reset', 'success');
+
+      setTimeout(() => loadUser(), 800);
+
+    } catch (err) {
+      hideLoader();
+      console.error('[ResetApprovals] Error:', err);
+      statusEl.textContent = err.message || 'Failed to reset approvals';
+      statusEl.style.color = '#e74c3c';
+      statusEl.style.display = 'block';
+      showToast('Failed to reset approvals', 'error');
+    }
+  }
+
+  async function loadSerials() {
+    if (!currentUserId) return;
+    console.log('[Serials] Fetching from:', API_BASE + '/admin/viewSerial/' + encodeURIComponent(currentUserId));
+    try {
+      const res = await fetch(API_BASE + '/admin/viewSerial/' + encodeURIComponent(currentUserId), {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      console.log('[Serials] Response status:', res.status, res.statusText);
+      console.log('[Serials] Response data:', data);
+
+      if (!res.ok) {
+        throw new Error(data.message || 'HTTP ' + res.status);
+      }
+
+      let serials = null;
+      if (data.serials && Array.isArray(data.serials)) {
+        serials = Array.isArray(data.serials[0]) ? data.serials[0] : data.serials;
+      } else if (data.data && Array.isArray(data.data)) {
+        serials = Array.isArray(data.data[0]) ? data.data[0] : data.data;
+      } else if (data.data && data.data.serials && Array.isArray(data.data.serials)) {
+        serials = Array.isArray(data.data.serials[0]) ? data.data.serials[0] : data.data.serials;
+      } else if (Array.isArray(data)) {
+        serials = Array.isArray(data[0]) ? data[0] : data;
+      }
+
+      if (serials && serials.length > 0) {
+        populateSerialInputs(serials);
+        console.log('[Serials] Populated inputs:', serials);
+      } else {
+        console.log('[Serials] No serials found in response');
+      }
+    } catch (err) {
+      console.error('[Serials] Fetch failed:', err);
+    }
+  }
+  async function createSerials() {
+    if (!currentUserId) return;
+    showLoader('Generating Serials...', 'Creating secure codes');
+    const data = await apiPost('/admin/createSerial', { userId: currentUserId });
+    hideLoader();
+    if (data) {
+      showToast('Serials generated successfully', 'success');
+      if (data.serials && Array.isArray(data.serials)) {
+        populateSerialInputs(data.serials);
+      }
+      setTimeout(() => loadSerials(), 500);
+    } else {
+      showToast('Failed to generate serials', 'error');
+    }
+  }
+
+  async function deleteCurrentUser() {
+    if (!currentUserId) return;
+    if (!confirm('Are you sure you want to permanently delete this user? This action cannot be undone.')) return;
+    showLoader('Deleting User...', 'Removing from database');
+    const data = await apiDelete('/admin/deleteUser/' + encodeURIComponent(currentUserId));
+    hideLoader();
+    if (data) {
+      showToast('User deleted successfully', 'success');
+      setTimeout(() => window.location.href = 'admin-users.html', 1200);
+    } else {
+      showToast('Failed to delete user', 'error');
+    }
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+  }
+
+  function showLoader(text, sub) {
+    document.getElementById('processLabel').textContent = text || 'Processing...';
+    document.getElementById('processSub').textContent = sub || 'Please wait';
+    document.getElementById('processOverlay').classList.add('show');
+  }
+
+  function hideLoader() {
+    document.getElementById('processOverlay').classList.remove('show');
+  }
+
+  function showToast(message, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast show ' + (type || '');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+
+  function createParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = (10 + Math.random() * 14) + 's';
+      p.style.animationDelay = Math.random() * 12 + 's';
+      p.style.width = (2 + Math.random() * 3) + 'px';
+      p.style.height = p.style.width;
+      container.appendChild(p);
+    }
+  }
+  createParticles();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadProfile();
+    loadUser();
+  });
+</script>
+</body>
+</html>

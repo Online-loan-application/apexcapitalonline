@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Capital — Authentication</title>
+  <script>
+    (function() {
+      const token = localStorage.getItem('apex_token');
+      const tokenTime = localStorage.getItem('apex_token_time');
+      const DAY_MS = 24 * 60 * 60 * 1000;
+      if (token && tokenTime) {
+        if (Date.now() - parseInt(tokenTime) > DAY_MS) {
+          localStorage.removeItem('apex_token');
+          localStorage.removeItem('apex_token_time');
+        } else {
+          window.location.replace('dashboard.html');
+        }
+      }
+    })();
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --deep: #021024; --navy: #052659; --slate: #5483B3;
+      --sky: #7DA0CA; --ice: #C1E8FF; --mist: #E0F2FE; --white: #FFFFFF;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--deep); color: #fff; overflow-x: hidden; line-height: 1.6;
+    }
+
+    /* Page routing */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* Nav */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; max-width: 1280px; margin: 0 auto; transition: background 0.4s, backdrop-filter 0.4s, box-shadow 0.4s; }
+    nav.scrolled { background: rgba(2,16,36,0.85); backdrop-filter: blur(20px); box-shadow: 0 4px 30px rgba(2,16,36,0.4); }
+    .logo { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 600; letter-spacing: -0.3px; text-decoration: none; color: #fff; }
+    .logo-orbital {
+      width: 44px; height: 44px;
+      position: relative;
+      transform-style: preserve-3d;
+      perspective: 200px;
+      flex-shrink: 0;
+    }
+    .logo-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      border-radius: 50%;
+      transform-style: preserve-3d;
+    }
+    .logo-ring-outer {
+      width: 40px; height: 40px;
+      margin: -20px 0 0 -20px;
+      border: 2.5px solid transparent;
+      border-top-color: var(--sky);
+      border-right-color: var(--ice);
+      border-left-color: var(--slate);
+      animation: spinLogo1 4s linear infinite;
+      transform: rotateX(55deg) rotateY(15deg);
+      filter: drop-shadow(0 0 10px rgba(125,160,202,0.7)) drop-shadow(0 0 20px rgba(193,232,255,0.2));
+    }
+    .logo-ring-mid {
+      width: 30px; height: 30px;
+      margin: -15px 0 0 -15px;
+      border: 2px solid transparent;
+      border-top-color: var(--ice);
+      border-bottom-color: var(--sky);
+      animation: spinLogo2 3s linear infinite reverse;
+      transform: rotateX(-40deg) rotateY(25deg);
+      filter: drop-shadow(0 0 8px rgba(193,232,255,0.5)) drop-shadow(0 0 16px rgba(125,160,202,0.2));
+    }
+    .logo-ring-inner {
+      width: 20px; height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 1.5px solid transparent;
+      border-right-color: var(--slate);
+      border-bottom-color: var(--ice);
+      animation: spinLogo3 2.5s linear infinite;
+      transform: rotateX(25deg) rotateY(-20deg);
+      filter: drop-shadow(0 0 6px rgba(84,131,179,0.6)) drop-shadow(0 0 12px rgba(193,232,255,0.15));
+    }
+    .logo-core {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 6px; height: 6px;
+      margin: -3px 0 0 -3px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--ice) 0%, var(--sky) 70%);
+      box-shadow: 0 0 16px rgba(193,232,255,0.7), 0 0 32px rgba(125,160,202,0.3);
+      animation: pulseLogo 2s ease-in-out infinite;
+    }
+    @keyframes spinLogo1 { 0% { transform: rotateX(55deg) rotateY(15deg) rotateZ(0deg); } 100% { transform: rotateX(55deg) rotateY(15deg) rotateZ(360deg); } }
+    @keyframes spinLogo2 { 0% { transform: rotateX(-40deg) rotateY(25deg) rotateZ(0deg); } 100% { transform: rotateX(-40deg) rotateY(25deg) rotateZ(360deg); } }
+    @keyframes spinLogo3 { 0% { transform: rotateX(25deg) rotateY(-20deg) rotateZ(0deg); } 100% { transform: rotateX(25deg) rotateY(-20deg) rotateZ(360deg); } }
+    @keyframes pulseLogo { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: 0.85; } }
+    .logo:hover .logo-orbital { transform: scale(1.1); transition: transform 0.3s ease; }
+    .logo span { color: var(--ice); }
+    .logo span b { color: #fff; font-weight: 600; }
+
+    /* Buttons */
+    .btn { padding: 16px 36px; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; border: none; font-family: inherit; text-decoration: none; }
+    .btn-ghost { background: rgba(193,232,255,0.06); color: var(--sky); border: 1px solid rgba(193,232,255,0.12); }
+    .btn-ghost:hover { background: rgba(193,232,255,0.12); color: var(--ice); }
+
+    /* Auth Pages */
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-bg-glow {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(100px);
+    }
+    .auth-bg-glow-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(125,160,202,0.15), transparent 60%);
+      top: -100px; right: -100px;
+    }
+    .auth-bg-glow-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(84,131,179,0.12), transparent 60%);
+      bottom: -80px; left: -80px;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      padding: 48px 40px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.08), rgba(84,131,179,0.04));
+      border: 1px solid rgba(193,232,255,0.12);
+      border-radius: 28px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 30px 80px rgba(2,16,36,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 0.6s ease-out both;
+    }
+    .auth-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .auth-logo-wrap .logo-orbital {
+      width: 64px; height: 64px;
+      margin-bottom: 16px;
+    }
+    .auth-logo-wrap .logo-ring-outer {
+      width: 60px; height: 60px;
+      margin: -30px 0 0 -30px;
+      border-width: 3px;
+      filter: drop-shadow(0 0 14px rgba(125,160,202,0.8)) drop-shadow(0 0 28px rgba(193,232,255,0.3));
+    }
+    .auth-logo-wrap .logo-ring-mid {
+      width: 44px; height: 44px;
+      margin: -22px 0 0 -22px;
+      border-width: 2.5px;
+      filter: drop-shadow(0 0 10px rgba(193,232,255,0.6)) drop-shadow(0 0 20px rgba(125,160,202,0.3));
+    }
+    .auth-logo-wrap .logo-ring-inner {
+      width: 28px; height: 28px;
+      margin: -14px 0 0 -14px;
+      border-width: 2px;
+      filter: drop-shadow(0 0 8px rgba(84,131,179,0.7)) drop-shadow(0 0 16px rgba(193,232,255,0.2));
+    }
+    .auth-logo-wrap .logo-core {
+      width: 10px; height: 10px;
+      margin: -5px 0 0 -5px;
+      box-shadow: 0 0 24px rgba(193,232,255,0.8), 0 0 48px rgba(125,160,202,0.3);
+    }
+    .auth-logo-wrap h2 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .auth-logo-wrap p {
+      font-size: 14px;
+      color: var(--sky);
+    }
+    .auth-form { display: flex; flex-direction: column; gap: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ice);
+      letter-spacing: 0.3px;
+    }
+    .form-group input {
+      padding: 14px 18px;
+      background: rgba(193,232,255,0.05);
+      border: 1.5px solid rgba(193,232,255,0.12);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.25s;
+      outline: none;
+    }
+    .form-group input::placeholder { color: var(--slate); }
+    .form-group input:focus {
+      border-color: var(--sky);
+      background: rgba(193,232,255,0.08);
+      box-shadow: 0 0 0 3px rgba(125,160,202,0.15);
+    }
+    .form-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .form-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--sky);
+    }
+    .form-checkbox input {
+      width: 16px; height: 16px;
+      accent-color: var(--slate);
+      cursor: pointer;
+    }
+    .form-link {
+      color: var(--ice);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .form-link:hover { color: #fff; }
+    .auth-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--slate), var(--sky), var(--ice));
+      background-size: 200% 200%;
+      color: var(--deep);
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      box-shadow: 0 8px 28px rgba(84,131,179,0.35);
+      animation: gradientShift 4s ease infinite;
+    }
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(84,131,179,0.5);
+    }
+    .auth-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 8px 0;
+      font-size: 13px;
+      color: var(--slate);
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(193,232,255,0.1);
+    }
+    .social-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    .social-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(193,232,255,0.05);
+      border: 1.5px solid rgba(193,232,255,0.1);
+      border-radius: 12px;
+      color: var(--ice);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .social-btn:hover {
+      background: rgba(193,232,255,0.1);
+      border-color: rgba(193,232,255,0.2);
+      transform: translateY(-1px);
+    }
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--sky);
+    }
+    .auth-footer a {
+      color: var(--ice);
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 4px;
+      transition: color 0.2s;
+    }
+    .auth-footer a:hover { color: #fff; }
+    .name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* PROCESSING LOADER OVERLAY */
+    .process-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 16, 36, 0.92);
+      backdrop-filter: blur(12px);
+      transition: opacity 0.4s ease;
+    }
+    .process-overlay.show { display: flex; }
+    .process-scene {
+      width: 140px; height: 140px;
+      perspective: 600px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .process-orbital {
+      width: 100%; height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: tiltScene 8s ease-in-out infinite;
+    }
+    .process-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      border-radius: 50%;
+      transform-style: preserve-3d;
+    }
+    .process-ring-outer {
+      width: 120px; height: 120px;
+      margin: -60px 0 0 -60px;
+      border: 2.5px solid transparent;
+      border-top-color: var(--sky);
+      border-right-color: var(--ice);
+      border-left-color: var(--slate);
+      animation: spinLogo1 3s linear infinite;
+      transform: rotateX(60deg) rotateY(20deg);
+      filter: drop-shadow(0 0 12px rgba(125,160,202,0.6));
+    }
+    .process-ring-mid {
+      width: 90px; height: 90px;
+      margin: -45px 0 0 -45px;
+      border: 2px solid transparent;
+      border-top-color: var(--ice);
+      border-bottom-color: var(--sky);
+      animation: spinLogo2 2.5s linear infinite reverse;
+      transform: rotateX(-45deg) rotateY(35deg);
+      filter: drop-shadow(0 0 10px rgba(193,232,255,0.5));
+    }
+    .process-ring-inner {
+      width: 60px; height: 60px;
+      margin: -30px 0 0 -30px;
+      border: 1.5px solid transparent;
+      border-right-color: var(--slate);
+      border-bottom-color: var(--ice);
+      animation: spinLogo3 2s linear infinite;
+      transform: rotateX(30deg) rotateY(-25deg);
+      filter: drop-shadow(0 0 8px rgba(84,131,179,0.6));
+    }
+    .process-core {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 18px; height: 18px;
+      margin: -9px 0 0 -9px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--ice), var(--sky));
+      box-shadow: 0 0 30px rgba(193,232,255,0.7), 0 0 60px rgba(125,160,202,0.3);
+      animation: pulseCore 2s ease-in-out infinite;
+    }
+    .process-core::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 6px; height: 6px;
+      margin: -3px 0 0 -3px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 16px rgba(255,255,255,0.9);
+    }
+    @keyframes spinLogo1 { 0% { transform: rotateX(60deg) rotateY(20deg) rotateZ(0deg); } 100% { transform: rotateX(60deg) rotateY(20deg) rotateZ(360deg); } }
+    @keyframes spinLogo2 { 0% { transform: rotateX(-45deg) rotateY(35deg) rotateZ(0deg); } 100% { transform: rotateX(-45deg) rotateY(35deg) rotateZ(360deg); } }
+    @keyframes spinLogo3 { 0% { transform: rotateX(30deg) rotateY(-25deg) rotateZ(0deg); } 100% { transform: rotateX(30deg) rotateY(-25deg) rotateZ(360deg); } }
+    @keyframes pulseCore { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.85; } }
+    @keyframes tiltScene { 0%, 100% { transform: rotateX(-10deg) rotateY(0deg); } 25% { transform: rotateX(5deg) rotateY(15deg); } 50% { transform: rotateX(-5deg) rotateY(-10deg); } 75% { transform: rotateX(10deg) rotateY(5deg); } }
+    .process-label {
+      font-size: 15px;
+      color: var(--sky);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: fadeUp 0.6s ease-out both;
+    }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px); background: linear-gradient(135deg, var(--slate), var(--sky)); color: var(--deep); padding: 14px 28px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 12px 40px rgba(84,131,179,0.4); z-index: 10000; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .auth-card { padding: 36px 24px; }
+    }
+    @media (max-width: 480px) {
+      .name-row { grid-template-columns: 1fr; }
+      .auth-card { padding: 36px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="navbar">
+    <a href="index.html" class="logo">
+      <div class="logo-orbital">
+        <div class="logo-ring logo-ring-outer"></div>
+        <div class="logo-ring logo-ring-mid"></div>
+        <div class="logo-ring logo-ring-inner"></div>
+        <div class="logo-core"></div>
+      </div>
+      <span>Apex <b>Capital</b></span>
+    </a>
+    <a href="index.html" class="btn btn-ghost" style="padding: 10px 20px; font-size: 14px;">← Back to Home</a>
+  </nav>
+
+  <!-- LOGIN PAGE -->
+  <div class="page" id="loginPage">
+    <section class="auth-page">
+      <div class="auth-bg-glow auth-bg-glow-1"></div>
+      <div class="auth-bg-glow auth-bg-glow-2"></div>
+      <div class="auth-card">
+        <div class="auth-logo-wrap">
+          <div class="logo-orbital">
+            <div class="logo-ring logo-ring-outer"></div>
+            <div class="logo-ring logo-ring-mid"></div>
+            <div class="logo-ring logo-ring-inner"></div>
+            <div class="logo-core"></div>
+          </div>
+          <h2>Welcome back</h2>
+          <p>Sign in to your Apex Capital account</p>
+        </div>
+        <form class="auth-form" id="loginForm">
+          <div class="form-group">
+            <label>Email address</label>
+            <input type="email" placeholder="you@example.com" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" placeholder="Enter your password" required>
+          </div>
+          <div class="form-row">
+            <label class="form-checkbox">
+              <input type="checkbox">
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="form-link" onclick="event.preventDefault(); showToast('Password reset coming soon')">Forgot password?</a>
+          </div>
+          <button type="submit" class="auth-btn">Sign In</button>
+          <!-- <div class="auth-divider">or continue with</div> -->
+          <!-- <div class="social-buttons">
+            <button type="button" class="social-btn" onclick="showToast('Google login coming soon')">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Google
+            </button>
+            <button type="button" class="social-btn" onclick="showToast('Apple login coming soon')">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+              Apple
+            </button>
+          </div> -->
+        </form>
+        <div class="auth-footer">
+          Don't have an account?<a href="#" onclick="event.preventDefault(); navigateTo('signup')">Get started</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- SIGNUP PAGE -->
+  <div class="page" id="signupPage">
+    <section class="auth-page">
+      <div class="auth-bg-glow auth-bg-glow-1"></div>
+      <div class="auth-bg-glow auth-bg-glow-2"></div>
+      <div class="auth-card">
+        <div class="auth-logo-wrap">
+          <div class="logo-orbital">
+            <div class="logo-ring logo-ring-outer"></div>
+            <div class="logo-ring logo-ring-mid"></div>
+            <div class="logo-ring logo-ring-inner"></div>
+            <div class="logo-core"></div>
+          </div>
+          <h2>Create account</h2>
+          <p>Start your journey with Apex Capital</p>
+        </div>
+        <form class="auth-form" id="signupForm">
+          <div class="name-row">
+            <div class="form-group">
+              <label>First name</label>
+              <input type="text" placeholder="John" required>
+            </div>
+            <div class="form-group">
+              <label>Last name</label>
+              <input type="text" placeholder="Doe" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email address</label>
+            <input type="email" placeholder="you@example.com" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" placeholder="Min 8 characters" required minlength="8">
+          </div>
+          <div class="form-group">
+            <label>Confirm password</label>
+            <input type="password" placeholder="Repeat password" required minlength="8">
+          </div>
+          <label class="form-checkbox">
+            <input type="checkbox" required>
+            <span>I agree to the <a href="#" class="form-link" onclick="event.preventDefault(); showToast('Terms page coming soon')">Terms of Service</a> and <a href="#" class="form-link" onclick="event.preventDefault(); showToast('Privacy policy coming soon')">Privacy Policy</a></span>
+          </label>
+          <button type="submit" class="auth-btn">Create Account</button>
+          <!-- <div class="auth-divider">or sign up with</div>
+          <div class="social-buttons">
+            <button type="button" class="social-btn" onclick="showToast('Google signup coming soon')">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Google
+            </button>
+            <button type="button" class="social-btn" onclick="showToast('Apple signup coming soon')">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+              Apple
+            </button>
+          </div> -->
+        </form>
+        <div class="auth-footer">
+          Already have an account?<a href="#" onclick="event.preventDefault(); navigateTo('login')">Sign in</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PROCESSING LOADER -->
+  <div class="process-overlay" id="processOverlay">
+    <div class="process-scene">
+      <div class="process-orbital">
+        <div class="process-ring process-ring-outer"></div>
+        <div class="process-ring process-ring-mid"></div>
+        <div class="process-ring process-ring-inner"></div>
+        <div class="process-core"></div>
+      </div>
+    </div>
+    <div class="process-label" id="processLabel">Authenticating...</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Page routing
+    function navigateTo(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      window.scrollTo(0, 0);
+      if (page === 'login') {
+        document.getElementById('loginPage').classList.add('active');
+        history.pushState(null, '', '#login');
+      } else if (page === 'signup') {
+        document.getElementById('signupPage').classList.add('active');
+        history.pushState(null, '', '#signup');
+      }
+    }
+
+    // Handle browser back/forward
+    window.addEventListener('popstate', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'signup') navigateTo('signup');
+      else navigateTo('login');
+    });
+
+    // Init on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'signup') navigateTo('signup');
+      else navigateTo('login');
+    });
+
+    // Navbar scroll
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Loader controls
+    function showLoader(text) {
+      const overlay = document.getElementById('processOverlay');
+      document.getElementById('processLabel').textContent = text || 'Processing...';
+      overlay.classList.add('show');
+    }
+    function hideLoader() {
+      document.getElementById('processOverlay').classList.remove('show');
+    }
+
+    // Toast
+    function showToast(message, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      if (type === 'error') {
+        toast.style.background = 'linear-gradient(135deg, #c0392b, #e74c3c)';
+        toast.style.color = '#fff';
+      } else if (type === 'success') {
+        toast.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'linear-gradient(135deg, var(--slate), var(--sky))';
+        toast.style.color = 'var(--deep)';
+      }
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.style.background = '';
+        toast.style.color = '';
+      }, 3000);
+    }
+
+    // API
+    const API_BASE = 'https://nexusbank-jjy2.onrender.com/api/V1';
+
+    // Signup
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = this.querySelector('.auth-btn');
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      showLoader('Creating your account...');
+
+      const formData = {
+        fullname: this.querySelector('input[placeholder="John"]').value + ' ' + this.querySelector('input[placeholder="Doe"]').value,
+        email: this.querySelector('input[type="email"]').value,
+        password: this.querySelectorAll('input[type="password"]')[0].value
+      };
+
+      try {
+        const res = await fetch(API_BASE + '/user/newUser', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast('Account created! Welcome aboard.', 'success');
+          setTimeout(() => { hideLoader(); navigateTo('login'); }, 1200);
+        } else {
+          hideLoader();
+          showToast(data.message || 'Signup failed. Please try again.', 'error');
+        }
+      } catch (err) {
+        hideLoader();
+        showToast('Network error. Please check your connection.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = this.querySelector('.auth-btn');
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      showLoader('Signing you in...');
+
+      const formData = {
+        email: this.querySelector('input[type="email"]').value,
+        password: this.querySelector('input[type="password"]').value
+      };
+
+      try {
+        const res = await fetch(API_BASE + '/user/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        const data = await res.json();
+
+       if (res.ok && data.token) {
+        localStorage.setItem('apex_token', data.token);
+        localStorage.setItem('apex_token_time', Date.now().toString());
+        sessionStorage.setItem('apex_welcome_pending', '1');
+        showToast('Login successful! Redirecting...', 'success');
+        
+        // Get user role from response data array
+        const userData = data.data && data.data[0] ? data.data[0] : {};
+        const role = userData.role || 'user';
+        
+        console.log('Logged in as:', role);
+        
+        setTimeout(() => {
+          hideLoader();
+          if (role === 'admin') {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = 'index.html';
+          }
+        }, 1200);
+      } else {
+        hideLoader();
+        showToast(data.message || 'Invalid credentials. Please try again.', 'error');
+      }
+      } catch (err) {
+        hideLoader();
+        showToast('Network error. Please check your connection.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Capital — Transfer</title>
+  <!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = '2780ffa99def9b45b2a63a3953129467e665769d';
+window.smartsupp||(function(d) {
+	var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+	s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+	c.type='text/javascript';c.charset='utf-8';c.async=true;
+	c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --deep: #021024; --navy: #052659; --slate: #5483B3;
+      --sky: #7DA0CA; --ice: #C1E8FF; --mist: #E0F2FE; --white: #FFFFFF;
+      --sidebar-width: 260px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--deep); color: #fff; overflow-x: hidden; line-height: 1.6;
+    }
+
+    /* Auth gate */
+    .auth-gate {
+      position: fixed; inset: 0; z-index: 99999;
+      background: linear-gradient(160deg, var(--deep) 0%, var(--navy) 50%, #0a3a7a 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+    .auth-gate.done { opacity: 0; visibility: hidden; pointer-events: none; }
+    .auth-gate p { margin-top: 24px; color: var(--sky); font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+
+    .app { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, rgba(5,38,89,0.6), rgba(2,16,36,0.9));
+      border-right: 1px solid rgba(193,232,255,0.08);
+      backdrop-filter: blur(20px);
+      position: fixed; inset: 0 auto 0 0;
+      z-index: 200;
+      display: flex; flex-direction: column;
+      padding: 24px 20px;
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .sidebar-overlay {
+      position: fixed; inset: 0; background: rgba(2,16,36,0.6);
+      backdrop-filter: blur(4px); z-index: 199;
+      display: none; opacity: 0; transition: opacity 0.3s;
+    }
+    .sidebar-overlay.show { display: block; opacity: 1; }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 20px; font-weight: 600; letter-spacing: -0.3px;
+      text-decoration: none; color: #fff; margin-bottom: 48px;
+      padding: 0 8px;
+    }
+    .sidebar-brand span { color: var(--ice); }
+    .sidebar-brand span b { color: #fff; }
+    .logo-orbital {
+      width: 40px; height: 40px;
+      position: relative; transform-style: preserve-3d; perspective: 200px; flex-shrink: 0;
+    }
+    .logo-ring {
+      position: absolute; top: 50%; left: 50%; border-radius: 50%; transform-style: preserve-3d;
+    }
+    .logo-ring-outer {
+      width: 36px; height: 36px; margin: -18px 0 0 -18px;
+      border: 2.5px solid transparent; border-top-color: var(--sky); border-right-color: var(--ice); border-left-color: var(--slate);
+      animation: spinLogo1 4s linear infinite; transform: rotateX(55deg) rotateY(15deg);
+      filter: drop-shadow(0 0 10px rgba(125,160,202,0.7));
+    }
+    .logo-ring-mid {
+      width: 26px; height: 26px; margin: -13px 0 0 -13px;
+      border: 2px solid transparent; border-top-color: var(--ice); border-bottom-color: var(--sky);
+      animation: spinLogo2 3s linear infinite reverse; transform: rotateX(-40deg) rotateY(25deg);
+      filter: drop-shadow(0 0 8px rgba(193,232,255,0.5));
+    }
+    .logo-ring-inner {
+      width: 18px; height: 18px; margin: -9px 0 0 -9px;
+      border: 1.5px solid transparent; border-right-color: var(--slate); border-bottom-color: var(--ice);
+      animation: spinLogo3 2.5s linear infinite; transform: rotateX(25deg) rotateY(-20deg);
+      filter: drop-shadow(0 0 6px rgba(84,131,179,0.6));
+    }
+    .logo-core {
+      position: absolute; top: 50%; left: 50%;
+      width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+      background: radial-gradient(circle, var(--ice) 0%, var(--sky) 70%);
+      box-shadow: 0 0 16px rgba(193,232,255,0.7), 0 0 32px rgba(125,160,202,0.3);
+      animation: pulseLogo 2s ease-in-out infinite;
+    }
+    @keyframes spinLogo1 { 0% { transform: rotateX(55deg) rotateY(15deg) rotateZ(0deg); } 100% { transform: rotateX(55deg) rotateY(15deg) rotateZ(360deg); } }
+    @keyframes spinLogo2 { 0% { transform: rotateX(-40deg) rotateY(25deg) rotateZ(0deg); } 100% { transform: rotateX(-40deg) rotateY(25deg) rotateZ(360deg); } }
+    @keyframes spinLogo3 { 0% { transform: rotateX(25deg) rotateY(-20deg) rotateZ(0deg); } 100% { transform: rotateX(25deg) rotateY(-20deg) rotateZ(360deg); } }
+    @keyframes pulseLogo { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: 0.85; } }
+
+    .nav-section { margin-bottom: 32px; }
+    .nav-section-title {
+      font-size: 11px; font-weight: 600; color: var(--slate);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      padding: 0 12px; margin-bottom: 12px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 14px; border-radius: 12px;
+      color: var(--sky); text-decoration: none; font-size: 14px; font-weight: 500;
+      transition: all 0.25s ease; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit;
+    }
+    .nav-item:hover, .nav-item.active {
+      background: linear-gradient(135deg, rgba(193,232,255,0.1), rgba(84,131,179,0.08));
+      color: var(--ice); border: 1px solid rgba(193,232,255,0.12);
+    }
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(193,232,255,0.14), rgba(84,131,179,0.1));
+      color: #fff; border-color: rgba(193,232,255,0.2);
+      box-shadow: 0 4px 20px rgba(84,131,179,0.15);
+    }
+    .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; stroke-width: 2; }
+    .sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(193,232,255,0.06); }
+    .user-pill {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; border-radius: 14px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.06), rgba(84,131,179,0.04));
+      border: 1px solid rgba(193,232,255,0.08);
+    }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      display: grid; place-items: center; font-size: 14px; font-weight: 600; color: var(--deep);
+    }
+    .user-info { text-align: left; }
+    .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .user-role { font-size: 12px; color: var(--slate); }
+
+    .main { flex: 1; margin-left: var(--sidebar-width); min-height: 100vh; position: relative; }
+
+    /* Topbar with Logo */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(2,16,36,0.8); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(193,232,255,0.06);
+      padding: 16px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-logo-display {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .topbar-logo-display .logo-orbital {
+      width: 32px; height: 32px;
+    }
+    .topbar-logo-display .logo-ring-outer {
+      width: 28px; height: 28px; margin: -14px 0 0 -14px;
+      border-width: 2px;
+    }
+    .topbar-logo-display .logo-ring-mid {
+      width: 20px; height: 20px; margin: -10px 0 0 -10px;
+      border-width: 1.5px;
+    }
+    .topbar-logo-display .logo-ring-inner {
+      width: 14px; height: 14px; margin: -7px 0 0 -7px;
+      border-width: 1px;
+    }
+    .topbar-logo-display .logo-core {
+      width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+    }
+    .topbar-logo-text {
+      font-size: 18px; font-weight: 600; letter-spacing: -0.3px; color: #fff;
+    }
+    .topbar-logo-text span { color: var(--ice); }
+    .topbar-logo-text span b { color: #fff; }
+
+    .topbar-actions { display: flex; align-items: center; gap: 16px; }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: rgba(193,232,255,0.05); border: 1px solid rgba(193,232,255,0.1);
+      display: grid; place-items: center; color: var(--sky);
+      cursor: pointer; transition: all 0.25s;
+    }
+    .icon-btn:hover {
+      background: rgba(193,232,255,0.1); border-color: rgba(193,232,255,0.2);
+      color: var(--ice); transform: translateY(-1px);
+    }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .mobile-toggle {
+      display: none; background: none; border: none; color: var(--ice); cursor: pointer;
+    }
+
+    /* Transfer Page Content */
+    .transfer-page {
+      padding: 32px;
+      max-width: 800px;
+      margin: 0 auto;
+      animation: slideUp 0.8s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .transfer-header {
+      margin-bottom: 32px;
+    }
+    .transfer-header h1 {
+      font-size: 32px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px;
+      background: linear-gradient(135deg, #fff 20%, var(--sky) 60%, var(--ice) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .transfer-header p { color: var(--sky); font-size: 15px; }
+
+    /* Saved Accounts Section */
+    .saved-accounts-panel {
+      padding: 28px; border-radius: 24px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.08), rgba(84,131,179,0.04));
+      border: 1px solid rgba(193,232,255,0.1);
+      backdrop-filter: blur(12px);
+      margin-bottom: 28px;
+      position: relative; overflow: hidden;
+      animation: slideUp 0.8s cubic-bezier(0.4,0,0.2,1) 0.1s forwards;
+      opacity: 0;
+    }
+    .saved-accounts-panel::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--slate), var(--sky), var(--ice));
+      background-size: 200% 100%;
+      animation: shimmerLine 4s linear infinite;
+    }
+    @keyframes shimmerLine {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .panel-header-row {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+    }
+    .panel-title {
+      font-size: 18px; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .panel-title svg { width: 20px; height: 20px; color: var(--sky); }
+
+    /* Saved Account Cards */
+    .saved-account-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    }
+    .saved-account-card {
+      padding: 20px; border-radius: 16px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.05), rgba(84,131,179,0.02));
+      border: 1px solid rgba(193,232,255,0.08);
+      cursor: pointer; transition: all 0.3s ease;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .saved-account-card:hover {
+      background: linear-gradient(160deg, rgba(193,232,255,0.1), rgba(84,131,179,0.06));
+      border-color: rgba(193,232,255,0.18);
+      transform: translateY(-3px);
+    }
+    .saved-account-card.selected {
+      border-color: var(--sky);
+      background: linear-gradient(160deg, rgba(125,160,202,0.12), rgba(84,131,179,0.06));
+      box-shadow: 0 8px 24px rgba(84,131,179,0.15);
+    }
+    .saved-account-avatar {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      display: grid; place-items: center; font-size: 14px; font-weight: 700; color: var(--deep);
+      flex-shrink: 0;
+    }
+    .saved-account-info { flex: 1; min-width: 0; }
+    .saved-account-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .saved-account-detail { font-size: 12px; color: var(--slate); }
+
+    /* Empty State */
+    .saved-empty {
+      text-align: center; padding: 48px 20px; color: var(--slate);
+    }
+    .saved-empty svg {
+      width: 56px; height: 56px; color: var(--slate); opacity: 0.4; margin-bottom: 16px;
+    }
+    .saved-empty p { font-size: 15px; font-weight: 500; color: var(--sky); margin-bottom: 4px; }
+    .saved-empty span { font-size: 13px; }
+
+    /* Add New Account Section */
+    .add-account-panel {
+      padding: 28px; border-radius: 24px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.06), rgba(84,131,179,0.03));
+      border: 1px solid rgba(193,232,255,0.1);
+      backdrop-filter: blur(12px);
+      animation: slideUp 0.8s cubic-bezier(0.4,0,0.2,1) 0.2s forwards;
+      opacity: 0;
+    }
+    .add-account-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; padding: 4px;
+    }
+    .add-account-toggle h3 {
+      font-size: 16px; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .add-account-toggle h3 svg { width: 18px; height: 18px; color: var(--sky); }
+    .add-account-toggle .chevron {
+      width: 24px; height: 24px; color: var(--slate);
+      transition: transform 0.3s ease;
+    }
+    .add-account-toggle.open .chevron { transform: rotate(180deg); }
+
+    .add-account-form {
+      margin-top: 20px; padding-top: 20px;
+      border-top: 1px solid rgba(193,232,255,0.06);
+      display: none;
+    }
+    .add-account-form.show { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-size: 12px; font-weight: 500; color: var(--sky);
+      margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .form-input, .form-select {
+      width: 100%; padding: 14px 16px;
+      background: rgba(193,232,255,0.05);
+      border: 1px solid rgba(193,232,255,0.1);
+      border-radius: 14px; color: #fff; font-size: 15px; font-family: inherit;
+      outline: none; transition: all 0.25s;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--sky); background: rgba(193,232,255,0.08);
+      box-shadow: 0 0 0 3px rgba(125,160,202,0.1);
+    }
+    .form-input::placeholder { color: var(--slate); }
+    .form-select option { background: var(--navy); color: #fff; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .save-account-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      color: var(--deep); border: none; border-radius: 14px;
+      font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: all 0.3s ease;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .save-account-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(84,131,179,0.4);
+    }
+
+    /* Transfer Form (shown after selecting account) */
+    .transfer-form-panel {
+      padding: 28px; border-radius: 24px;
+      background: linear-gradient(160deg, rgba(193,232,255,0.08), rgba(84,131,179,0.04));
+      border: 1px solid rgba(193,232,255,0.1);
+      backdrop-filter: blur(12px);
+      margin-top: 28px;
+      animation: slideUp 0.6s ease forwards;
+      display: none;
+    }
+    .transfer-form-panel.show { display: block; }
+    .amount-wrap { position: relative; }
+    .amount-wrap .currency {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--sky); font-size: 16px; font-weight: 600;
+    }
+    .amount-wrap .form-input {
+      padding-left: 36px;
+      font-size: 20px; font-weight: 600; letter-spacing: -0.5px;
+    }
+    .transfer-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      color: var(--deep); border: none; border-radius: 14px;
+      font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: all 0.3s ease;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin-top: 8px;
+    }
+    .transfer-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(84,131,179,0.4);
+    }
+
+    /* Balance Display */
+    .balance-display {
+      padding: 14px 16px;
+      background: rgba(193,232,255,0.05);
+      border: 1px solid rgba(193,232,255,0.1);
+      border-radius: 14px;
+      color: #fff;
+    }
+    .balance-display .balance-label {
+      font-size: 11px;
+      color: var(--slate);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .balance-display .balance-amount {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff, var(--ice));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Preview Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(2,16,36,0.92); backdrop-filter: blur(14px);
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.show { display: flex; opacity: 1; }
+    .modal-card {
+      width: 90%; max-width: 460px;
+      padding: 28px;
+      background: linear-gradient(165deg, rgba(193,232,255,0.1), rgba(84,131,179,0.04));
+      border: 1px solid rgba(193,232,255,0.12);
+      border-radius: 24px;
+      box-shadow: 0 30px 80px rgba(2,16,36,0.6);
+      transform: scale(0.94) translateY(16px);
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      max-height: 85vh; overflow-y: auto;
+    }
+    .modal-overlay.show .modal-card { transform: scale(1) translateY(0); }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+    }
+    .modal-header h3 {
+      font-size: 18px; font-weight: 600; letter-spacing: -0.2px;
+      background: linear-gradient(135deg, #fff, var(--ice));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(193,232,255,0.05); border: 1px solid rgba(193,232,255,0.08);
+      color: var(--sky); display: grid; place-items: center; cursor: pointer; transition: all 0.2s;
+    }
+    .modal-close:hover { background: rgba(193,232,255,0.1); color: var(--ice); }
+    .preview-row {
+      display: flex; justify-content: space-between; padding: 12px 0;
+      border-bottom: 1px solid rgba(193,232,255,0.06);
+      font-size: 13px;
+    }
+    .preview-label { color: var(--slate); }
+    .preview-value { color: #fff; font-weight: 500; text-align: right; }
+    .preview-value.amount {
+      font-size: 16px;
+      background: linear-gradient(135deg, #fff, var(--ice));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .modal-actions {
+      display: flex; gap: 10px;
+      margin-top: 20px;
+    }
+    .btn {
+      flex: 1; padding: 12px;
+      border-radius: 12px;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: all 0.25s ease;
+      border: none;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--slate), var(--sky));
+      color: var(--deep);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(84,131,179,0.3);
+    }
+    .btn-outline {
+      background: rgba(193,232,255,0.04);
+      border: 1px solid rgba(193,232,255,0.1);
+      color: var(--sky);
+    }
+    .btn-outline:hover {
+      background: rgba(193,232,255,0.08);
+      border-color: rgba(193,232,255,0.16);
+      color: var(--ice);
+    }
+
+    /* Process overlay */
+    .process-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(2, 16, 36, 0.92); backdrop-filter: blur(12px);
+    }
+    .process-overlay.show { display: flex; }
+    .process-scene { width: 140px; height: 140px; perspective: 600px; margin-bottom: 32px; display: flex; align-items: center; justify-content: center; }
+    .process-orbital { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; animation: tiltScene 8s ease-in-out infinite; }
+    .process-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform-style: preserve-3d; }
+    .process-ring-outer { width: 120px; height: 120px; margin: -60px 0 0 -60px; border: 2.5px solid transparent; border-top-color: var(--sky); border-right-color: var(--ice); border-left-color: var(--slate); animation: spinLogo1 3s linear infinite; transform: rotateX(60deg) rotateY(20deg); filter: drop-shadow(0 0 12px rgba(125,160,202,0.6)); }
+    .process-ring-mid { width: 90px; height: 90px; margin: -45px 0 0 -45px; border: 2px solid transparent; border-top-color: var(--ice); border-bottom-color: var(--sky); animation: spinLogo2 2.5s linear infinite reverse; transform: rotateX(-45deg) rotateY(35deg); filter: drop-shadow(0 0 10px rgba(193,232,255,0.5)); }
+    .process-ring-inner { width: 60px; height: 60px; margin: -30px 0 0 -30px; border: 1.5px solid transparent; border-right-color: var(--slate); border-bottom-color: var(--ice); animation: spinLogo3 2s linear infinite; transform: rotateX(30deg) rotateY(-25deg); filter: drop-shadow(0 0 8px rgba(84,131,179,0.6)); }
+    .process-core { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: radial-gradient(circle, var(--ice), var(--sky)); box-shadow: 0 0 30px rgba(193,232,255,0.7), 0 0 60px rgba(125,160,202,0.3); animation: pulseCore 2s ease-in-out infinite; }
+    .process-core::after { content: ''; position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: #fff; box-shadow: 0 0 16px rgba(255,255,255,0.9); }
+    @keyframes pulseCore { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.85; } }
+    @keyframes tiltScene { 0%, 100% { transform: rotateX(-10deg) rotateY(0deg); } 25% { transform: rotateX(5deg) rotateY(15deg); } 50% { transform: rotateX(-5deg) rotateY(-10deg); } 75% { transform: rotateX(10deg) rotateY(5deg); } }
+    .process-label { font-size: 15px; color: var(--sky); letter-spacing: 2px; text-transform: uppercase; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(100px); background: linear-gradient(135deg, var(--slate), var(--sky)); color: var(--deep); padding: 14px 28px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 12px 40px rgba(84,131,179,0.4); z-index: 10000; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Skeleton */
+    .skeleton-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px; border-radius: 16px;
+      background: linear-gradient(90deg, rgba(193,232,255,0.04) 25%, rgba(193,232,255,0.08) 50%, rgba(193,232,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: skeletonShimmer 1.5s ease-in-out infinite;
+      border: 1px solid rgba(193,232,255,0.04);
+    }
+    @keyframes skeletonShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton-avatar {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(193,232,255,0.06); flex-shrink: 0;
+    }
+    .skeleton-lines { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .skeleton-line {
+      height: 10px; border-radius: 4px;
+      background: rgba(193,232,255,0.06);
+    }
+    .skeleton-line.short { width: 50%; }
+
+    /* Floating particles */
+    .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle {
+      position: absolute; width: 4px; height: 4px; background: var(--sky);
+      border-radius: 50%; opacity: 0.3; animation: floatParticle linear infinite;
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 0.3; } 90% { opacity: 0.3; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .mobile-toggle { display: block; }
+      .topbar { padding: 16px 20px; }
+      .transfer-page { padding: 20px; }
+      .saved-account-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Auth Gate -->
+  <div class="auth-gate" id="authGate">
+    <div class="process-scene">
+      <div class="process-orbital">
+        <div class="process-ring process-ring-outer"></div>
+        <div class="process-ring process-ring-mid"></div>
+        <div class="process-ring process-ring-inner"></div>
+        <div class="process-core"></div>
+      </div>
+    </div>
+    <p>Verifying session...</p>
+  </div>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <a href="index.html" class="sidebar-brand">
+        <div class="logo-orbital">
+          <div class="logo-ring logo-ring-outer"></div>
+          <div class="logo-ring logo-ring-mid"></div>
+          <div class="logo-ring logo-ring-inner"></div>
+          <div class="logo-core"></div>
+        </div>
+        <span>Apex <b>Capital</b></span>
+      </a>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Menu</div>
+        <a href="index.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+        <a href="transfer.html" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          Transfer
+        </a>
+        <a href="transaction.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Transaction
+        </a>
+        <!-- <button class="nav-item" onclick="showToast('Card page coming soon')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Card
+        </button>
+        <button class="nav-item" onclick="showToast('Analytics page coming soon')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Analytics
+        </button> -->
+        <a href="setting.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </a>
+        <!-- <button class="nav-item" onclick="showToast('Account page coming soon')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          User Account
+        </button> -->
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-pill">
+          <div class="user-avatar" id="userAvatar">JD</div>
+          <div class="user-info">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Premium Member</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- Topbar with Logo -->
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:16px;">
+          <button class="mobile-toggle" onclick="toggleSidebar()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="topbar-logo-display">
+            <div class="logo-orbital">
+              <div class="logo-ring logo-ring-outer"></div>
+              <div class="logo-ring logo-ring-mid"></div>
+              <div class="logo-ring logo-ring-inner"></div>
+              <div class="logo-core"></div>
+            </div>
+            <div class="topbar-logo-text">Apex <span><b>Capital</b></span></div>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="icon-btn" onclick="logout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Transfer Content -->
+      <div class="transfer-page">
+        <div class="transfer-header">
+          <h1>Transfer Funds</h1>
+          <p>Send money securely to your saved accounts.</p>
+        </div>
+
+        <!-- Saved Accounts Panel -->
+        <div class="saved-accounts-panel" id="savedAccountsPanel">
+          <div class="panel-header-row">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Saved Accounts
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div id="savedAccountsLoading">
+            <div class="skeleton-row" style="margin-bottom:12px;">
+              <div class="skeleton-avatar"></div>
+              <div class="skeleton-lines">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+              </div>
+            </div>
+            <div class="skeleton-row">
+              <div class="skeleton-avatar"></div>
+              <div class="skeleton-lines">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accounts List -->
+          <div class="saved-account-grid" id="savedAccountsGrid" style="display:none;"></div>
+
+          <!-- Empty State -->
+          <div class="saved-empty" id="savedAccountsEmpty" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            <p>No recently saved account</p>
+            <span>Add a new account below to get started</span>
+          </div>
+        </div>
+
+        <!-- Add New Account Section -->
+        <div class="add-account-panel">
+          <div class="add-account-toggle" id="addAccountToggle" onclick="toggleAddAccount()">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              Add New Account
+            </h3>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+
+          <div class="add-account-form" id="addAccountForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Account Holder Name</label>
+                <input type="text" class="form-input" id="newAccName" placeholder="e.g. John Doe" required>
+              </div>
+              <div class="form-group">
+                <label>Bank Name</label>
+                <input type="text" class="form-input" id="newAccBank" placeholder="e.g. Chase Bank" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Account Number</label>
+                <input type="text" class="form-input" id="newAccNumber" placeholder="•••• •••• ••••" required>
+              </div>
+              <div class="form-group">
+                <label>Account Type</label>
+                <select class="form-select" id="newAccType">
+                  <option value="savings">Savings</option>
+                  <option value="checking">Checking</option>
+                  <option value="business">Business</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Branch</label>
+                <input type="text" class="form-input" id="newAccBranch" placeholder="e.g. Main Street Branch" required>
+              </div>
+              <div class="form-group">
+                <label>Swift Code <span style="color:var(--slate);font-size:11px;text-transform:none;">(Optional)</span></label>
+                <input type="text" class="form-input" id="newAccSwift" placeholder="e.g. CHASUS33">
+              </div>
+            </div>
+            <button type="button" class="save-account-btn" onclick="saveNewAccount()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Save Account
+            </button>
+          </div>
+        </div>
+
+        <!-- Transfer Form (shown after selecting account) -->
+        <div class="transfer-form-panel" id="transferFormPanel">
+          <div class="panel-title" style="margin-bottom:20px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            Send to <span id="selectedAccountName" style="color:var(--ice);"></span>
+          </div>
+          <form id="transferForm" onsubmit="handleTransfer(event)">
+            <div class="form-group">
+              <label>From Balance</label>
+              <div class="balance-display" id="fromBalanceDisplay">
+                <div class="balance-label">Available Balance</div>
+                <div class="balance-amount" id="balanceAmount">Loading...</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <div class="amount-wrap">
+                <span class="currency">$</span>
+                <input type="number" class="form-input" id="amount" placeholder="0.00" step="0.01" min="0.01" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Note (Optional)</label>
+              <input type="text" class="form-input" id="note" placeholder="What's this for?">
+            </div>
+            <button type="submit" class="transfer-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Confirm Transfer
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="modal-overlay" id="previewModal" onclick="if(event.target===this)closePreviewModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Transfer Preview</h3>
+        <button class="modal-close" onclick="closePreviewModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="previewBody">
+        <!-- injected via JS -->
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closePreviewModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="finalizeTransfer()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Confirm Transfer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Process Overlay -->
+  <div class="process-overlay" id="processOverlay">
+    <div class="process-scene">
+      <div class="process-orbital">
+        <div class="process-ring process-ring-outer"></div>
+        <div class="process-ring process-ring-mid"></div>
+        <div class="process-ring process-ring-inner"></div>
+        <div class="process-core"></div>
+      </div>
+    </div>
+    <div class="process-label" id="processLabel">Processing...</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+    const API_BASE = 'https://nexusbank-jjy2.onrender.com/api/V1';
+    const token = localStorage.getItem('apex_token');
+    let savedAccounts = [];
+    let selectedAccount = null;
+    let selectedAccountObj = null;
+    let selectedAccountName = '';
+    let userBalance = 0;
+    let pendingTransfer = null;
+
+    // Auth gate
+    if (!token) {
+      window.location.href = 'auth.html#login';
+    } else {
+      setTimeout(() => {
+        document.getElementById('authGate').classList.add('done');
+      }, 1200);
+    }
+
+    // API helpers
+    async function apiGet(endpoint) {
+      try {
+        const res = await fetch(API_BASE + endpoint, {
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        console.log('GET', endpoint, '→', res.status, data);
+        if (!res.ok) throw new Error(data.message || 'Request failed');
+        return data;
+      } catch (err) {
+        console.error('API Error:', err);
+        return null;
+      }
+    }
+
+    async function apiPut(endpoint, body) {
+      console.log('PUT', endpoint, 'Payload:', body);
+      try {
+        const res = await fetch(API_BASE + endpoint, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        console.log('PUT', endpoint, '→', res.status, data);
+        if (!res.ok) throw new Error(data.message || 'Request failed');
+        return data;
+      } catch (err) {
+        console.error('API Error:', err);
+        showToast(err.message, 'error');
+        return null;
+      }
+    }
+
+    async function apiPost(endpoint, body) {
+      console.log('POST', endpoint, 'Payload:', body);
+      try {
+        const res = await fetch(API_BASE + endpoint, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        console.log('POST', endpoint, '→', res.status, data);
+        if (!res.ok) throw new Error(data.message || 'Request failed');
+        return data;
+      } catch (err) {
+        console.error('API Error:', err);
+        showToast(err.message, 'error');
+        return null;
+      }
+    }
+
+    // Load Profile + Balance
+    async function loadProfile() {
+      const data = await apiGet('/user/viewProfile');
+      if (data) {
+        const userArr = data.data || data.user || data;
+        const user = Array.isArray(userArr) ? userArr[0] : userArr;
+        if (!user) return;
+
+  // ===== REDIRECT IF PENDING BALANCE EXISTS =====
+        const pendingBalance = parseFloat(user.pendingBalance || 0);
+        if (pendingBalance > 0) {
+          window.location.href = 'payment-verify.html';
+          return;
+        }
+        // ================================================
+
+        const fullName = user.fullname || user.name || 'User';
+        document.getElementById('userName').textContent = fullName;
+        document.getElementById('userAvatar').textContent = fullName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+
+        userBalance = parseFloat(user.availableBalance || user.balance || user.totalBalance || 0);
+        renderFromBalance();
+      }
+    }
+
+    function renderFromBalance() {
+      const el = document.getElementById('balanceAmount');
+      el.textContent = '$' + userBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    // Load Saved Accounts from Backend
+    async function loadSavedAccounts() {
+      const data = await apiGet('/user/bankInfo');
+
+      document.getElementById('savedAccountsLoading').style.display = 'none';
+
+      let accounts = [];
+      if (data && data.data) {
+        accounts = Array.isArray(data.data) ? data.data : [data.data];
+      } else if (data && Array.isArray(data)) {
+        accounts = data;
+      }
+
+      if (accounts.length === 0) {
+        document.getElementById('savedAccountsEmpty').style.display = 'block';
+        document.getElementById('savedAccountsGrid').style.display = 'none';
+      } else {
+        savedAccounts = accounts;
+        renderSavedAccounts(accounts);
+        document.getElementById('savedAccountsGrid').style.display = 'grid';
+        document.getElementById('savedAccountsEmpty').style.display = 'none';
+      }
+    }
+
+    function renderSavedAccounts(accounts) {
+      const grid = document.getElementById('savedAccountsGrid');
+      grid.innerHTML = accounts.map((acc, index) => {
+        const displayName = acc.fullname || acc.name || 'Unknown';
+        const displayBank = acc.bankName || acc.bank || 'Unknown Bank';
+        const displayNumber = acc.accountNumber ? '•••• ' + acc.accountNumber.slice(-4) : '';
+        const id = acc._id || acc.id || index;
+        return `
+        <div class="saved-account-card" onclick="selectAccount(this, '${id}', '${displayName.replace(/'/g, "\\'")}')">
+          <div class="saved-account-avatar">${displayName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}</div>
+          <div class="saved-account-info">
+            <div class="saved-account-name">${displayName}</div>
+            <div class="saved-account-detail">${displayBank} ${displayNumber ? '&bull; ' + displayNumber : ''}</div>
+          </div>
+        </div>
+      `}).join('');
+    }
+
+    function selectAccount(el, id, name) {
+      selectedAccount = id;
+      selectedAccountName = name;
+      
+      // Store full account object so preview never loses the reference
+      selectedAccountObj = savedAccounts.find(a => String(a._id || a.id) === String(id)) || null;
+      
+      // Use the clicked element directly — no brittle getElementById lookup
+      document.querySelectorAll('.saved-account-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      
+      document.getElementById('selectedAccountName').textContent = name;
+      document.getElementById('transferFormPanel').classList.add('show');
+      document.getElementById('transferFormPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Toggle Add Account Form
+    function toggleAddAccount() {
+      const toggle = document.getElementById('addAccountToggle');
+      const form = document.getElementById('addAccountForm');
+      toggle.classList.toggle('open');
+      form.classList.toggle('show');
+    }
+
+    // Save New Account
+    async function saveNewAccount() {
+      const fullname = document.getElementById('newAccName').value.trim();
+      const bankName = document.getElementById('newAccBank').value.trim();
+      const accountNumber = document.getElementById('newAccNumber').value.trim();
+      const accountType = document.getElementById('newAccType').value;
+      const branch = document.getElementById('newAccBranch').value.trim();
+      const swiftCode = document.getElementById('newAccSwift').value.trim();
+
+      if (!fullname || !bankName || !accountNumber || !branch) {
+        showToast('Please fill in all required fields (Name, Bank, Account Number, Branch)', 'error');
+        return;
+      }
+
+      showLoader('Saving Account...');
+
+      const payload = {
+        fullname,
+        accountNumber,
+        accountType,
+        bankName,
+        branch
+      };
+      
+      if (swiftCode) payload.swiftCode = swiftCode;
+
+      const result = await apiPut('/user/addBank', payload);
+
+      hideLoader();
+
+      if (result) {
+        showToast('Account saved successfully', 'success');
+
+        document.getElementById('newAccName').value = '';
+        document.getElementById('newAccBank').value = '';
+        document.getElementById('newAccNumber').value = '';
+        document.getElementById('newAccBranch').value = '';
+        document.getElementById('newAccSwift').value = '';
+        toggleAddAccount();
+
+        loadSavedAccounts();
+      }
+    }
+
+    // Handle Transfer — shows preview modal
+    function handleTransfer(e) {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('amount').value);
+      const note = document.getElementById('note').value.trim();
+
+      if (!amount || amount <= 0) {
+        showToast('Please enter a valid amount', 'error');
+        return;
+      }
+      if (!selectedAccount || !selectedAccountObj) {
+        showToast('Please select a recipient account', 'error');
+        return;
+      }
+      if (amount > userBalance) {
+        showToast('Insufficient balance', 'error');
+        return;
+      }
+
+      const acc = selectedAccountObj;
+      const bankName = acc.bankName || acc.bank || '—';
+      const accNum = acc.accountNumber ? '•••• ' + acc.accountNumber.slice(-4) : '—';
+
+      pendingTransfer = { amount, note, recipient: selectedAccountName, bankName, accNum };
+
+      document.getElementById('previewBody').innerHTML = `
+        <div class="preview-row">
+          <span class="preview-label">Recipient</span>
+          <span class="preview-value">${escapeHtml(selectedAccountName)}</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Bank</span>
+          <span class="preview-value">${escapeHtml(bankName)}</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Account</span>
+          <span class="preview-value">${accNum}</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Amount</span>
+          <span class="preview-value amount">$${amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">From Balance</span>
+          <span class="preview-value">$${userBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">Balance After</span>
+          <span class="preview-value">$${(userBalance - amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+        </div>
+        ${note ? `
+        <div class="preview-row">
+          <span class="preview-label">Note</span>
+          <span class="preview-value">${escapeHtml(note)}</span>
+        </div>
+        ` : ''}
+      `;
+
+      document.getElementById('previewModal').classList.add('show');
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewModal').classList.remove('show');
+    }
+
+    async function finalizeTransfer() {
+      if (!pendingTransfer) return;
+      closePreviewModal();
+      showLoader('Processing Transfer...');
+
+      const result = await apiPut('/user/withdrawal', { 
+        amount: pendingTransfer.amount,
+        accountId: selectedAccount,
+        note: pendingTransfer.note || ''
+      });
+
+      hideLoader();
+      console.log(result)
+
+      if (result) {
+        showToast('Transfer sent successfully', 'success');
+        
+        // Redirect to success page with details
+        const params = new URLSearchParams({
+          amount: pendingTransfer.amount,
+          to: pendingTransfer.recipient,
+          bank: pendingTransfer.bankName,
+          note: pendingTransfer.note || '',
+          date: new Date().toISOString()
+        });
+        window.location.href = 'payment-verify.html?' + params.toString();
+      } else {
+        showToast('Transfer failed. Please try again.', 'error');
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // UI Helpers
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('show');
+    }
+    function setActive(el) {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+    }
+    function logout() {
+      showLoader('Signing out...');
+      setTimeout(() => {
+        localStorage.removeItem('apex_token');
+        window.location.href = 'auth.html#login';
+      }, 1000);
+    }
+    function showLoader(text) {
+      document.getElementById('processLabel').textContent = text || 'Processing...';
+      document.getElementById('processOverlay').classList.add('show');
+    }
+    function hideLoader() {
+      document.getElementById('processOverlay').classList.remove('show');
+    }
+    function showToast(message, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      if (type === 'error') {
+        toast.style.background = 'linear-gradient(135deg, #c0392b, #e74c3c)';
+        toast.style.color = '#fff';
+      } else if (type === 'success') {
+        toast.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+        toast.style.color = '#fff';
+      } else {
+        toast.style.background = 'linear-gradient(135deg, var(--slate), var(--sky))';
+        toast.style.color = 'var(--deep)';
+      }
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.style.background = '';
+        toast.style.color = '';
+      }, 4000);
+    }
+
+    // Floating Particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDuration = (8 + Math.random() * 12) + 's';
+        p.style.animationDelay = Math.random() * 10 + 's';
+        p.style.width = (2 + Math.random() * 3) + 'px';
+        p.style.height = p.style.width;
+        container.appendChild(p);
+      }
+    }
+    createParticles();
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfile();
+      loadSavedAccounts();
+    });
+  </script>
+
+</body>
+</html>
